@@ -1,16 +1,9 @@
 package daemon;
 
-import interfaces.MapReduce;
-import interfaces.FileKVReaderWriter;
-import interfaces.FileTxtReaderWriter;
-import interfaces.FileReaderWriter;
-import interfaces.NetworkReaderWriter;
-import interfaces.NetworkReaderWriterImpl;
-import interfaces.Map;
-import interfaces.MapReduce;
-import interfaces.Reader;
-import interfaces.Writer;
-import interfaces.ReaderImpl;
+import interfaces.*;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+
 
 
 
@@ -114,11 +107,15 @@ public class JobLauncher {
 
 
 	// attendre terminaison des map (cmt?) pour que reduce envoie resultat sur fichierdest.
+
+	try {
+		
+
 	writer = new NetworkReaderWriterImpl();
 	writer.openServer();
 
 	//recoit de tous
-	NetworkReaderWriterImpl networkRW = write.accept();
+	NetworkReaderWriterImpl networkRW = (NetworkReaderWriterImpl) writer.accept();
 	InputStream is = networkRW.asock.getInputStream();
     ObjectInputStream ois = new ObjectInputStream(is);
 
@@ -132,6 +129,11 @@ public class JobLauncher {
 		}
 		else{
 			//Ajoute au fichier final
+			// reduce recoit tous les fichier res (de chaque fragment) et les écrit dans un unique fichier
+			
+			FileKVReaderWriter writerKV = null;
+			writerKV = new FileKVReaderWriter(fname);
+			writerKV.write(kvRecu);
 			
 		}
 	}
@@ -141,6 +143,10 @@ public class JobLauncher {
 	networkRW.asock.close();
 	writer.closeServer();
 	//regroupe
+
+} catch (Exception e) {
+	e.printStackTrace();
+} 
 
 
 

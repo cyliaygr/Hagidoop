@@ -20,7 +20,7 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
 
     private Socket csock;
     private ServerSocket ssock;
-    private Socket asock;
+    public Socket asock;
     private int port;
     private BufferedReader reader;
     private BufferedWriter writer;
