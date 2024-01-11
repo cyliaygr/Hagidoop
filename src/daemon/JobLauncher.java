@@ -36,7 +36,7 @@ public class JobLauncher {
 	String path = "/tmp/data/";
 
 	// fragment src = fname?????????????? <------- erreur peut etre la 
-	String fichiersrc;
+	//String fichiersrc;
 	FileReaderWriter reader = null;	    // initiailisation en dehors du try pour assurer 
 										//une valeur au reader même en dehors du try
 	
@@ -57,25 +57,26 @@ public class JobLauncher {
 		if (nbFragments == 1) {
 			
 			// On rajoute _1 au nom puisqu'un seul fragment
-			fichiersrc = path + nomExt[0] + "_1" + "." + nomExt[1];
-			nomExt = fichiersrc.split("\\.");
+			fname = path + nomExt[0] + "_1" + "." + nomExt[1];
+			nomExt = fname.split("\\.");
 
 			// le fichier dest reprend le nom du fichier src en ajoutant -res
-			fichierdest = fichiersrc + "-res";
+			fichierdest = fname + "-res";
 	
 			writer = new NetworkReaderWriterImpl();
 
 			listeWorker[0].runMap(mr, reader, writer); //initialiser la liste dans le client
+			
 		} else {
 			for (int i = 0; i < nbFragments ; i ++){
 
 				// format des noms de fragments : "<nom fichier HDFS>_< n° fragment >"
-				fichiersrc = path + nomExt[0] + "_" + i + "." + nomExt[1];
+				fname = path + nomExt[0] + "_" + i + "." + nomExt[1];
 
 				// le fichier dest reprend le nom du fichier src en ajoutant -res
 				fichierdest = path + nomExt[0] + "_" + i + "-res" + "." + nomExt[1];
 
-				reader = new FileTxtReaderWriter(fichiersrc);
+				reader = new FileTxtReaderWriter(fname);
 				writer = new NetworkReaderWriterImpl();
 
 				listeWorker[i%nbrWorker].runMap(mr, reader, writer); //initialiser la liste dans le client
