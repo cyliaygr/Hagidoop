@@ -81,11 +81,7 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
             e.printStackTrace();
         }
 
-<<<<<<< Updated upstream
         //LANCE LE COUNT
-=======
-        
->>>>>>> Stashed changes
         // lancement du map depuis une instanciation de Map.java
         mapp.map(readerm, writerm);
 
