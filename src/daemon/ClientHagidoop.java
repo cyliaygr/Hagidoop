@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 import application.MyMapReduce;
 import interfaces.*;
+import config.*;
 import hdfs.HdfsClient;
 import java.util.concurrent.Semaphore;
 import java.io.BufferedReader;
@@ -20,12 +21,12 @@ public class ClientHagidoop {
 	
 
     private static void usage() {
-		System.out.println("Utilisation : java HidoopClient nomFichier format nbWorker");
+		System.out.println("Utilisation : java HagidoopClient nomFichier format nbWorker");
 	}
 
 	// récupérer les emplacements indiqués dans le fichier de configuration
 	private static String[] recupURL(int nbMachines) {
-		String path = "src/config/config_hagidoop.cfg";
+		String path = "/Users/yangourcylia/Documents/GitHub/Hagidoop/src/config/config_hagidoop.cfg";
 		
 		File file = new File(path);
 		int cpt = 0;
@@ -58,7 +59,7 @@ public class ClientHagidoop {
 			// si le fichier de configuration est correct
 			if (noms.length != 0 && ports.length == noms.length) {
 				for (int i=0 ; i < nbMachines ; i++) {
-					urls[i] = "//" + noms[i] + ":" + ports[i] + "/Daemon";
+					urls[i] = "//" + noms[i] + ":" + ports[i] + "/Worker";
 					// System.out.println(urls[i]);
 				}
 			} else {
@@ -139,6 +140,7 @@ public class ClientHagidoop {
 			listeWorker = new Worker[nbMachines];
 			
 			for (int i = 0 ; i < nbMachines ; i++) {
+				System.out.println(urlWorker[i]);
 				listeWorker[i]=(Worker) Naming.lookup(urlWorker[i]);
 			}
 			
