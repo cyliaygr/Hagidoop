@@ -121,6 +121,12 @@ public class JobLauncher {
 
 	int cptWorkerFini = 0;
 	KV kvRecu = null;
+
+	FileKVReaderWriter writerKV = null;
+	fname =  path + nomExt[0] + "-res.kv";
+	writerKV = new FileKVReaderWriter(fname);
+	writerKV.open("R");
+				
 	while(cptWorkerFini < nbrWorker){
 		kvRecu = (KV)ois.readObject();
 		
@@ -130,14 +136,12 @@ public class JobLauncher {
 		else{
 			//Ajoute au fichier final
 			// reduce recoit tous les fichier res (de chaque fragment) et les écrit dans un unique fichier
-			
-			FileKVReaderWriter writerKV = null;
-			writerKV = new FileKVReaderWriter(fname);
 			writerKV.write(kvRecu);
 			
 		}
 	}
 
+	writerKV.close();
 	ois.close();
     is.close();
 	networkRW.asock.close();

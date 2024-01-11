@@ -14,6 +14,10 @@ public class WriterImplKV implements Writer {
     protected boolean oEcriture = false;
     protected FileWriter fichierEcriture;
 
+    public WriterImplKV(FileWriter fwname){
+        this.fichierEcriture = fwname;
+    }
+
 /* OVERRIDE : fn write
  * param : record de type KV
  * 

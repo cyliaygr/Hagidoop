@@ -49,6 +49,7 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
         csockList = new ArrayList<Socket>();
         ObjectList = new ArrayList<ObjectInputStream>();
     }
+    
 
     public void openServer() {
         try {
