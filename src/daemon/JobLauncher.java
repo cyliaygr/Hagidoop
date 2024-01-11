@@ -7,10 +7,16 @@ import interfaces.FileReaderWriter;
 import interfaces.NetworkReaderWriter;
 import interfaces.NetworkReaderWriterImpl;
 import interfaces.Map;
+import interfaces.MapReduce;
+import interfaces.Reader;
+import interfaces.Writer;
+import interfaces.ReaderImpl;
+
 
 
 public class JobLauncher {
 
+	static MapReduce mapp;
 	// infos sur le fichier à traiter
 	public int format;
 	public static String fname;
@@ -42,7 +48,10 @@ public class JobLauncher {
 	
 	// fragment destination
 	String fichierdest;
-	NetworkReaderWriter writer;
+	NetworkReaderWriter writer = null;
+
+	Reader readerm = null;
+	Writer writerm = null;
 
 	String[] nomExt = fname.split("\\.");
 
@@ -51,7 +60,11 @@ public class JobLauncher {
 
 	// RECUPÉRER LES FRAGMENTS (FICHIERS)
 	// 	hdfs.HdfsClient.main(argsFragments);
+	readerm = new ReaderImpl();
 
+	// lancement du reduce
+	mapp.reduce(readerm, writerm);
+	
 	// TRAITEMENT SUR CHAQUE FRAGMENT
 	try {
 		// CREE ET ACTIVE LES WORKERS
@@ -90,6 +103,8 @@ public class JobLauncher {
 	}
 
 	// lancer le reduce qui récupère les résultats des map (sur une connexion réseau avec les map) et les traite.
+
+	
 	// sujet : startjob lance les run en appelant runmap
 	// startjob lance le reduce ==> comment? en appelant quoi? 
 
@@ -99,7 +114,7 @@ public class JobLauncher {
 
 
 	// attendre terminaison des map (cmt?) pour que reduce envoie resultat sur fichierdest.
-
+	writer = new NetworkReaderWriterImpl();
 	writer.openServer();
 
 	//recoit de tous

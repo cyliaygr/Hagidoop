@@ -19,6 +19,10 @@ public class ReaderImpl implements Reader {
 
     private int index = 0;
 
+	public ReaderImpl() {
+
+	}	
+
 	public KV read() {	
 		String line = null;
 		if(oLect){
