@@ -54,6 +54,7 @@ public class JobLauncher {
 
 	// TRAITEMENT SUR CHAQUE FRAGMENT
 	try {
+		// CREE ET ACTIVE LES WORKERS
 		if (nbFragments == 1) {
 			
 			// On rajoute _1 au nom puisqu'un seul fragment
@@ -83,6 +84,7 @@ public class JobLauncher {
 
 			}
 		}
+
 	} catch (Exception e) {
 		e.printStackTrace();
 	}
@@ -97,6 +99,11 @@ public class JobLauncher {
 
 
 	// attendre terminaison des map (cmt?) pour que reduce envoie resultat sur fichierdest.
+
+	writer.openServer();
+	//recoit de tous
+	writer.closeServer();
+	//regroupe
 
 
 

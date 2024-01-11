@@ -62,7 +62,9 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
     }
 
     public void run()  {
+        writer.openClient();
 
+        // LECTURE DE FRAGMENT  
         // Appel à la fonction open en précisant le mode (reading/writing)
         try {
             reader.setFname(reader.getFname());
@@ -71,6 +73,7 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
             e.printStackTrace();
         }
 
+        // ECRITURE DES RESUTLATS (KV)
         try {
             reader.setFname(reader.getFname());
             reader.open("W");
@@ -78,9 +81,16 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
             e.printStackTrace();
         }
 
+        //LANCE LE COUNT
         // lancement du map depuis une instanciation de Map.java
         mapp.map(readerm, writerm);
 
+
+        //ENVOIE LES RESULTATS AU CLIENT
+
+
+
+        writer.closeClient();
     }
 
     public void main(String[] args) {
