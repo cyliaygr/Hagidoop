@@ -101,7 +101,29 @@ public class JobLauncher {
 	// attendre terminaison des map (cmt?) pour que reduce envoie resultat sur fichierdest.
 
 	writer.openServer();
+
 	//recoit de tous
+	NetworkReaderWriterImpl networkRW = write.accept();
+	InputStream is = networkRW.asock.getInputStream();
+    ObjectInputStream ois = new ObjectInputStream(is);
+
+	int cptWorkerFini = 0;
+	KV kvRecu = null;
+	while(cptWorkerFini < nbrWorker){
+		kvRecu = (KV)ois.readObject();
+		
+		if(kvRecu.equals("fin de resultat")){
+			cptWorkerFini += 1;
+		}
+		else{
+			//Ajoute au fichier final
+			
+		}
+	}
+
+	ois.close();
+    is.close();
+	networkRW.asock.close();
 	writer.closeServer();
 	//regroupe
 
