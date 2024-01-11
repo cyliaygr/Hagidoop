@@ -8,15 +8,12 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.Naming;
 import java.net.InetAddress;
+import java.io.*;
 
 
-import interfaces.FileReaderWriter;
-import interfaces.Map;
-import interfaces.NetworkReaderWriter;
-import interfaces.FileReaderWriter;
-import interfaces.Map;
-import interfaces.Reader;
-import interfaces.Writer;
+import interfaces.*;
+import java.net.Socket;
+
 //import io.*;
 
 public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
@@ -24,13 +21,14 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
     Map mapp;
     FileReaderWriter reader;
     NetworkReaderWriter writer;
-    Reader readerm;
-    Writer writerm;
+    ReaderImpl readerm;
+    WriterImpl writerm;
+    Socket csock;
     
     String nomWorker = "Worker";
 
     // CONSTRUCTEUR : récupère le numéro du worker et le fichier à traiter
-    public WorkerImpl(Map m, FileReaderWriter rw, Reader r, Writer w) throws RemoteException{
+    public WorkerImpl(Map m, FileReaderWriter rw, ReaderImpl r, WriterImpl w) throws RemoteException{
         this.reader = rw;
         this.mapp = m;
         this.readerm = r;
@@ -62,7 +60,8 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
     }
 
     public void run()  {
-        writer.openClient();
+        //writer = new NetworkReaderWriterImpl();
+        ((NetworkReaderWriterImpl) writer).openClient();
 
         // LECTURE DE FRAGMENT  
         // Appel à la fonction open en précisant le mode (reading/writing)
@@ -88,22 +87,26 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
 
         //ENVOIE LES RESULTATS AU CLIENT
         //Ouvre une connexion avec le Client
-        OutputStream os  = writer.ssock.getOutputStream();
-		ObjectOutputStream oos = new ObjectOutputStream(os);
-        //Ouvre un reader sur le fichier resultats (KV)
-        FileKVReaderWriter readerKV = new FileKVReaderWriter("count-res");
-        readerKV.open("R");
+        try {
+            OutputStream os  = ((NetworkReaderWriterImpl) writer).csock.getOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(os);
+            //Ouvre un reader sur le fichier resultats (KV)
+            FileKVReaderWriter readerKV = new FileKVReaderWriter("count-res");
+            readerKV.open("R");
 
-        //Lecture et envoie ligne par ligne du resultat de count
-        KV kvLu;
-        while ((kvLu = readerKV.readLine()) != null) {
-            oos.writeObject(kvLu);
+            //Lecture et envoie ligne par ligne du resultat de count
+            KV kvLu;
+            while ((kvLu = readerKV.read()) != null) {
+                oos.writeObject(kvLu);
+            }
+            oos.writeObject("fin de resultat"); //Indique la fin d'envoie
+
+            readerKV.close();
+            oos.close();
+            os.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        oos.writeObject("fin de resultat"); //Indique la fin d'envoie
-
-        readerKV.close();
-		oos.close();
-		os.close();
 
         writer.closeClient();
     }

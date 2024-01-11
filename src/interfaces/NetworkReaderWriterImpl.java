@@ -18,8 +18,8 @@ import java.io.ObjectInputStream;
 
 public class NetworkReaderWriterImpl implements NetworkReaderWriter {
 
-    private Socket csock;
-    private ServerSocket ssock;
+    public Socket csock;
+    public ServerSocket ssock;
     public Socket asock;
     private int port;
     private BufferedReader reader;
