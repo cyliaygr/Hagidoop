@@ -18,11 +18,11 @@ import java.net.Socket;
 
 public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
 
-    Map mapp;
-    FileReaderWriter reader;
-    NetworkReaderWriter writer;
-    ReaderImpl readerm;
-    WriterImpl writerm;
+   static Map mapp;
+   static FileReaderWriter reader;
+   NetworkReaderWriter writer;
+   static ReaderImpl readerm;
+   static WriterImpl writerm;
     Socket csock;
     
     String nomWorker = "Worker";
@@ -33,6 +33,7 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
         this.mapp = m;
         this.readerm = r;
         this.writerm = w;
+        this.writer = new NetworkReaderWriterImpl();
     }
 
     public String getNameWorker() throws RemoteException {
@@ -60,7 +61,7 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
     }
 
     public void run()  {
-        //writer = new NetworkReaderWriterImpl();
+       // writer = new NetworkReaderWriterImpl();
         ((NetworkReaderWriterImpl) writer).openClient();
 
         // LECTURE DE FRAGMENT  
@@ -111,11 +112,12 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
         writer.closeClient();
     }
 
-    public void main(String[] args) {
+    public static void main(String[] args) {
         try {
 
             //On publie le worker sur le RMI, qu'on récupérera au niveau du client pour pouvoir lancer les runMap
             Registry registre = LocateRegistry.createRegistry(Integer.valueOf(args[0]));
+            
             WorkerImpl serveurWork = new WorkerImpl(mapp, reader, readerm, writerm);
 
             String url = "//" + InetAddress.getLocalHost().getHostName() + ":" + args[0] + "/Worker";

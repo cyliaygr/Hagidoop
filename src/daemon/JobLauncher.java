@@ -32,7 +32,7 @@ public class JobLauncher {
 	public static void startJob (MapReduce mr, int format, String fname) {
 
 	// chemin vers les fragments à traiter
-	String path = "/tmp/data/";
+	String path = "/Users/yangourcylia/Documents/GitHub/Hagidoop/src/";
 
 	// fragment src = fname?????????????? <------- erreur peut etre la 
 	//String fichiersrc;
@@ -56,7 +56,7 @@ public class JobLauncher {
 	readerm = new ReaderImpl();
 
 	// lancement du reduce
-	mapp.reduce(readerm, writerm);
+	mr.reduce(readerm, writerm);
 	
 	// TRAITEMENT SUR CHAQUE FRAGMENT
 	try {
@@ -78,7 +78,7 @@ public class JobLauncher {
 			for (int i = 0; i < nbFragments ; i ++){
 
 				// format des noms de fragments : "<nom fichier HDFS>_< n° fragment >"
-				fname = path + nomExt[0] + "_" + i + "." + nomExt[1];
+				fname = path + nomExt[0] + "-" + i + "." + nomExt[1];
 
 				// le fichier dest reprend le nom du fichier src en ajoutant -res
 				fichierdest = path + nomExt[0] + "_" + i + "-res" + "." + nomExt[1];

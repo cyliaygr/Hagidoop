@@ -54,7 +54,7 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
     public void openServer() {
         try {
             // Reduce peut ouvrir une connexion pour récolter les resultats (lire des KV)
-            ssock = new ServerSocket(port); 
+            this.ssock = new ServerSocket(port); 
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -64,7 +64,7 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
 	public void openClient() { 
         try {
             // Map peut ouvrir une connexion pour lire des KV depuis le fragment
-            csock = new Socket("localhost", port); 
+            this.csock = new Socket("localhost", port); 
             reader = new BufferedReader(new InputStreamReader(csock.getInputStream()));
         } catch (IOException e) {
             e.printStackTrace();
