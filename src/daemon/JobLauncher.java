@@ -52,7 +52,7 @@ public class JobLauncher {
 	int nbFragments = 3;
 
 	// RECUPÉRER LES FRAGMENTS (FICHIERS)
-	// 	hdfs.HdfsClient.main(argsFragments);
+	// hdfs.HdfsClient.main(argsFragments);
 	readerm = new ReaderImpl();
 
 	// lancement du reduce
@@ -122,10 +122,9 @@ public class JobLauncher {
 	int cptWorkerFini = 0;
 	KV kvRecu = null;
 
-	FileKVReaderWriter writerKV = null;
 	fname =  path + nomExt[0] + "-res.kv";
-	writerKV = new FileKVReaderWriter(fname);
-	writerKV.open("R");
+	FileKVReaderWriter writerKV = new FileKVReaderWriter(fname);
+	writerKV.open("W");
 				
 	while(cptWorkerFini < nbrWorker){
 		kvRecu = (KV)ois.readObject();

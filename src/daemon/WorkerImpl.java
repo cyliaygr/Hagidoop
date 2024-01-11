@@ -73,21 +73,37 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
             e.printStackTrace();
         }
 
-        // ECRITURE DES RESUTLATS (KV)
-        try {
-            reader.setFname(reader.getFname());
-            reader.open("W");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        // // ECRITURE DES RESUTLATS (KV)
+        // try {
+        //     reader.setFname(reader.getFname());
+        //     reader.open("W");
+        // } catch (Exception e) {
+        //     e.printStackTrace();
+        // }
 
         //LANCE LE COUNT
         // lancement du map depuis une instanciation de Map.java
-        mapp.map(readerm, writerm);
+        //mapp.map(readerm, writerm);
 
 
         //ENVOIE LES RESULTATS AU CLIENT
+        //Ouvre une connexion avec le Client
+        OutputStream os  = writer.ssock.getOutputStream();
+		ObjectOutputStream oos = new ObjectOutputStream(os);
+        //Ouvre un reader sur le fichier resultats (KV)
+        FileKVReaderWriter readerKV = new FileKVReaderWriter("count-res");
+        readerKV.open("R");
 
+        //Lecture et envoie ligne par ligne du resultat de count
+        KV kvLu;
+        while ((kvLu = readerKV.readLine()) != null) {
+            oos.writeObject(kvLu);
+        }
+        oos.writeObject("fin de resultat"); //Indique la fin d'envoie
+
+        readerKV.close();
+		oos.close();
+		os.close();
 
         writer.closeClient();
     }
