@@ -8,9 +8,11 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.ObjectInputStream;
 
 
 
@@ -24,6 +26,8 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
     private BufferedWriter writer;
     private int format;
     private String adresse;
+    private ArrayList<Socket> csockList;
+    private ArrayList<ObjectInputStream> ObjectList;
 
     protected boolean oLect = false;
     protected boolean oEcriture = false;
@@ -39,6 +43,11 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
         this.adresse = a;
         this.format = f;
         this.port = p;
+    }
+
+    public NetworkReaderWriterImpl() {
+        csockList = new ArrayList<Socket>();
+        ObjectList = new ArrayList<ObjectInputStream>();
     }
 
     public void openServer() {

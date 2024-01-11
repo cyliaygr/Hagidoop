@@ -144,7 +144,7 @@ public class ClientHagidoop {
 			
 			// création et définition des attributs de l'objet Job
 			// on donne la liste des références aux Daemons à l'objet Job
-			JobLauncher job = new JobLauncher();
+			JobLauncher job = new JobLauncher(ft);
 			
 			// indiquer à job le nom et format du fichier à traiter
 			//job.setInputFname(hdfsFname);  //FONCTION A RAJOUTER DANS JOBLAUNCHER

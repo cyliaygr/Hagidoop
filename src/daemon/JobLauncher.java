@@ -4,29 +4,50 @@ import interfaces.MapReduce;
 import interfaces.FileKVReaderWriter;
 import interfaces.FileTxtReaderWriter;
 import interfaces.FileReaderWriter;
+import interfaces.NetworkReaderWriter;
+import interfaces.NetworkReaderWriterImpl;
 import interfaces.Map;
-
-
 
 
 public class JobLauncher {
 
+	// infos sur le fichier à traiter
+	public int format;
+	public static String fname;
 
+	// Nombre de worker pour cette application
+	public static int nbrWorker;
+
+	// liste des workers de l'application 
+	private static Worker[] listeWorker;
 	
-	static int nbrWorker = 3;
-	static int nbFragments = 3;
+	// CONSTRUCTEUR (utilisée dans le ClientHagidoop)
+	public JobLauncher (int f) {
+		this.format = f;
+		this.fname = null;
+		this.listeWorker = ClientHagidoop.listeWorker;		
+		this.nbrWorker = listeWorker.length;
 	
-	
-	// static String[] argsFragments = {"write", "txt", nomFichier};
+	}
 
 	public static void startJob (MapReduce mr, int format, String fname) {
 
-	String nomFichier = "filesample.txt";
+	// chemin vers les fragments à traiter
+	String path = "/tmp/data/";
+
+	// fragment src = fname?????????????? <------- erreur peut etre la 
+	String fichiersrc;
+	FileReaderWriter reader = null;	    // initiailisation en dehors du try pour assurer 
+										//une valeur au reader même en dehors du try
 	
+	// fragment destination
+	String fichierdest;
+	NetworkReaderWriter writer;
 
-	Worker[] listeWorker;
-	Map m;
+	String[] nomExt = fname.split("\\.");
 
+	//nbr de fragments
+	int nbFragments = 3;
 
 	// RECUPÉRER LES FRAGMENTS (FICHIERS)
 	// 	hdfs.HdfsClient.main(argsFragments);
@@ -34,18 +55,30 @@ public class JobLauncher {
 	// TRAITEMENT SUR CHAQUE FRAGMENT
 	try {
 		if (nbFragments == 1) {
-			FileReaderWriter reader;
-			NetworkReaderWriter writer;
+			
+			// On rajoute _1 au nom puisqu'un seul fragment
+			fichiersrc = path + nomExt[0] + "_1" + "." + nomExt[1];
+			nomExt = fichiersrc.split("\\.");
 
-			listeWorker[0].runMap(m, reader, writer); //initialiser la liste dans le client
+			// le fichier dest reprend le nom du fichier src en ajoutant -res
+			fichierdest = fichiersrc + "-res";
+	
+			writer = new NetworkReaderWriterImpl();
+
+			listeWorker[0].runMap(mr, reader, writer); //initialiser la liste dans le client
 		} else {
 			for (int i = 0; i < nbFragments ; i ++){
-				String fichierdst = "filesample-res.txt";
 
-				FileReaderWriter reader;
-				NetworkReaderWriter writer;
+				// format des noms de fragments : "<nom fichier HDFS>_< n° fragment >"
+				fichiersrc = path + nomExt[0] + "_" + i + "." + nomExt[1];
 
-				listeWorker[i%nbrWorker].runMap(m, reader, writer); //initialiser la liste dans le client
+				// le fichier dest reprend le nom du fichier src en ajoutant -res
+				fichierdest = path + nomExt[0] + "_" + i + "-res" + "." + nomExt[1];
+
+				reader = new FileTxtReaderWriter(fichiersrc);
+				writer = new NetworkReaderWriterImpl();
+
+				listeWorker[i%nbrWorker].runMap(mr, reader, writer); //initialiser la liste dans le client
 
 			}
 		}
@@ -53,29 +86,20 @@ public class JobLauncher {
 		e.printStackTrace();
 	}
 
+	// lancer le reduce qui récupère les résultats des map (sur une connexion réseau avec les map) et les traite.
+	// sujet : startjob lance les run en appelant runmap
+	// startjob lance le reduce ==> comment? en appelant quoi? 
+
+	// 2 map et 2 reduce ou modifier ceux de MyMapReduce ?? 
+
+	// où openclient openserver dcp? (quel fichier, quel méthode)
 
 
-		
-	// CREER LEW WORKER
-	 	try {
-             Thread t[] = new Thread[nbrWorker];
-
-             for (int i = 0; i < nbrWorker; i++) {
-	 			String newName = nomFichier.replace(".txt", "-"+i+".txt");
-                 t[i] = new WorkerImpl(i, newName);
-                 t[i].start();
-             }
-
-         } catch (Exception e) {
-             e.printStackTrace();
-         }
+	// attendre terminaison des map (cmt?) pour que reduce envoie resultat sur fichierdest.
 
 
 
-	// 	LANCER LE REDUCE
-
-	// 	LANCER LES RUNMAP SUR LES WORKER
-
+	
 			
 	}
 }

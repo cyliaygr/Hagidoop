@@ -22,22 +22,20 @@ import interfaces.Writer;
 public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
 
     Map mapp;
-    FileReaderWriter readerwriter;
-    Reader reader;
-    Writer writer;
+    FileReaderWriter reader;
+    NetworkReaderWriter writer;
+    Reader readerm;
+    Writer writerm;
     
     String nomWorker = "Worker";
-    //int numWorker, String nomFichier
 
     // CONSTRUCTEUR : récupère le numéro du worker et le fichier à traiter
     public WorkerImpl(Map m, FileReaderWriter rw, Reader r, Writer w) throws RemoteException{
-        this.readerwriter = rw;
+        this.reader = rw;
         this.mapp = m;
-        this.reader = r;
-        this.writer = w;
+        this.readerm = r;
+        this.writerm = w;
     }
-
-    
 
     public String getNameWorker() throws RemoteException {
         return nomWorker; 
@@ -55,36 +53,42 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
 
         // }
 
-        Thread t = new Thread(new WorkerImpl(mapp, readerwriter, reader, writer));
+
+        // Création et lancement des Workers
+        Thread t = new Thread(new WorkerImpl(mapp, reader, readerm, writerm));
         t.start();
+
+        //************$$ SUREMENT ICI QUE FAUT OPENCLIENT OPENSERVER ETC (???)
     }
 
     public void run()  {
+
+        // Appel à la fonction open en précisant le mode (reading/writing)
         try {
-            readerwriter.setFname(readerwriter.getFname());
-            readerwriter.open("R");
+            reader.setFname(reader.getFname());
+            reader.open("R");
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         try {
-            readerwriter.setFname(readerwriter.getFname());
-            readerwriter.open("W");
+            reader.setFname(reader.getFname());
+            reader.open("W");
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        
-        mapp.map(reader, writer);
+        // lancement du map depuis une instanciation de Map.java
+        mapp.map(readerm, writerm);
 
     }
 
     public void main(String[] args) {
         try {
 
-            //On publie le worker sur le RMI, qu'on récupérera au niveau du client pour pouvoir faire les runMap
+            //On publie le worker sur le RMI, qu'on récupérera au niveau du client pour pouvoir lancer les runMap
             Registry registre = LocateRegistry.createRegistry(Integer.valueOf(args[0]));
-            WorkerImpl serveurWork = new WorkerImpl(mapp, readerwriter, reader, writer);
+            WorkerImpl serveurWork = new WorkerImpl(mapp, reader, readerm, writerm);
 
             String url = "//" + InetAddress.getLocalHost().getHostName() + ":" + args[0] + "/Worker";
 
