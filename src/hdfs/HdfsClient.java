@@ -30,6 +30,10 @@ public class HdfsClient extends Thread {
 	
 	// Permet de supprimer les fragments d'un fichier stocké dans HDFS
 	public static void HdfsDelete(String fname) {
+		System.out.println("Demande de suppression du fichier : "+ fname);
+		File file = new File(fname);
+		file.delete();
+		System.out.println(fname +" a été supprimé.");
 	}
 	
 	//  Permet d'écrire un fichier dans HDFS. Le fichier fname est lu sur le système de fichiers local,
