@@ -9,18 +9,25 @@ import java.io.IOException;
 
 public class ReaderImpl implements Reader {
 
-    protected boolean oLect = false;
+    protected boolean oLect = true;
     protected boolean oEcriture = false;
     protected FileWriter fichierEcriture;
 
 
 	protected FileReader fichierLecture;
 	protected BufferedReader buffer;
+	String fname;
 
     private int index = 0;
 
-	public ReaderImpl() {
-
+	public ReaderImpl(String fname) {
+		try {
+			this.fname = fname;
+			this.buffer = new BufferedReader(new FileReader(fname));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 	}	
 
 	public KV read() {	

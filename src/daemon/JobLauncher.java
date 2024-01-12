@@ -53,7 +53,7 @@ public class JobLauncher {
 
 	// RECUPÉRER LES FRAGMENTS (FICHIERS)
 	// hdfs.HdfsClient.main(argsFragments);
-	readerm = new ReaderImpl();
+	readerm = new ReaderImpl(fname);
 
 	// lancement du reduce
 	mr.reduce(readerm, writerm);
@@ -64,14 +64,14 @@ public class JobLauncher {
 		if (nbFragments == 1) {
 			
 			// On rajoute _1 au nom puisqu'un seul fragment
-			fname = path + nomExt[0] + "_1" + "." + nomExt[1];
+			fname = path + nomExt[0] + "-1" + "." + nomExt[1];
 			nomExt = fname.split("\\.");
 
 			// le fichier dest reprend le nom du fichier src en ajoutant -res
 			fichierdest = fname + "-res";
 	
 			writer = new NetworkReaderWriterImpl();
-
+			System.out.println("lancement runmap");
 			listeWorker[0].runMap(mr, reader, writer); //initialiser la liste dans le client
 			
 		} else {
@@ -85,6 +85,7 @@ public class JobLauncher {
 
 				reader = new FileTxtReaderWriter(fname);
 				writer = new NetworkReaderWriterImpl();
+				System.out.println("lancement runmap");
 
 				listeWorker[i%nbrWorker].runMap(mr, reader, writer); //initialiser la liste dans le client
 

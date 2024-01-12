@@ -54,21 +54,27 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
 
 
         // Création et lancement des Workers
+        System.out.println("Avant thread");
         Thread t = new Thread(new WorkerImpl(mapp, reader, readerm, writerm));
         t.start();
+        System.out.println("Après thread");
 
         //************$$ SUREMENT ICI QUE FAUT OPENCLIENT OPENSERVER ETC (???)
     }
 
     public void run()  {
        // writer = new NetworkReaderWriterImpl();
+       System.out.println("Avant Openclient");
         ((NetworkReaderWriterImpl) writer).openClient();
+        System.out.println("Après Openclient");
 
         // LECTURE DE FRAGMENT  
         // Appel à la fonction open en précisant le mode (reading/writing)
         try {
+            System.out.println("Avant lecture frag");
             reader.setFname(reader.getFname());
             reader.open("R");
+            System.out.println("Après lecture frag");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -89,14 +95,17 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
         //ENVOIE LES RESULTATS AU CLIENT
         //Ouvre une connexion avec le Client
         try {
+            System.out.println("Avant csock");
             OutputStream os  = ((NetworkReaderWriterImpl) writer).csock.getOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(os);
             //Ouvre un reader sur le fichier resultats (KV)
             FileKVReaderWriter readerKV = new FileKVReaderWriter("count-res");
             readerKV.open("R");
+            System.out.println("Après csock");
 
             //Lecture et envoie ligne par ligne du resultat de count
             KV kvLu;
+            System.out.println("Read en cours");
             while ((kvLu = readerKV.read()) != null) {
                 oos.writeObject(kvLu);
             }
@@ -106,6 +115,7 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
             oos.close();
             os.close();
         } catch (Exception e) {
+            System.out.println("Non read");
             e.printStackTrace();
         }
 
