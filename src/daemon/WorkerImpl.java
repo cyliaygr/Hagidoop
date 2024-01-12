@@ -9,6 +9,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.rmi.Naming;
 import java.net.InetAddress;
 import java.io.*;
+import application.*;
 
 
 import interfaces.*;
@@ -55,6 +56,7 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
 
         // Création et lancement des Workers
         System.out.println("Avant thread");
+       
         Thread t = new Thread(new WorkerImpl(mapp, reader, readerm, writerm));
         t.start();
         System.out.println("Après thread");
@@ -91,7 +93,7 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
         // lancement du map depuis une instanciation de Map.java
         //mapp.map(readerm, writerm);
 
-
+        
         //ENVOIE LES RESULTATS AU CLIENT
         //Ouvre une connexion avec le Client
         try {

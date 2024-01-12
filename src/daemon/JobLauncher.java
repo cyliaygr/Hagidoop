@@ -3,7 +3,7 @@ package daemon;
 import interfaces.*;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-
+import application.*;
 
 
 
@@ -50,6 +50,10 @@ public class JobLauncher {
 
 	//nbr de fragments
 	int nbFragments = 3;
+	Count cptKV = new Count();
+	String[] args = new String[1];
+	args[0] = "filesample.txt";
+	cptKV.main(args);	
 
 	// RECUPÉRER LES FRAGMENTS (FICHIERS)
 	// hdfs.HdfsClient.main(argsFragments);

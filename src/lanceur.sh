@@ -1,14 +1,16 @@
+
+
 # Terminal 1: Launch RMI registry
-mate-terminal --window -e "/bin/bash -c \"rmiregistry 1000; exec /bin/bash\"" \
+osascript -e 'tell app "Terminal" to do script "cd /Users/yangourcylia/Documents/GitHub/Hagidoop/src; rmiregistry 1000"'
 
 # Terminal 2: Launch Worker 1
---tab -e "/bin/bash -c \"java daemons/WorkerImpl 1001; exec /bin/bash\"" \
+osascript -e 'tell app "Terminal" to do script "cd /Users/yangourcylia/Documents/GitHub/Hagidoop/src; java daemon.WorkerImpl 1001"'
 
 # Terminal 3: Launch Worker 2
---tab -e "/bin/bash -c \"java daemons/WorkerImpl 1002; exec /bin/bash\"" \
+osascript -e 'tell app "Terminal" to do script "cd /Users/yangourcylia/Documents/GitHub/Hagidoop/src; java daemon.WorkerImpl 1002"'
 
 # Terminal 4: Launch Worker 3
---tab -e "/bin/bash -c \"java daemons/WorkerImpl 1003; exec /bin/bash\"" \
+osascript -e 'tell app "Terminal" to do script "cd /Users/yangourcylia/Documents/GitHub/Hagidoop/src; java daemon.WorkerImpl 1003"'
 
 # Terminal 5: Launch ClientHagidoop
---tab -e "/bin/bash -c \"java daemon/ClientHagidoop filesample.txt txt 3; exec /bin/bash\""
+osascript -e 'tell app "Terminal" to do script "cd /Users/yangourcylia/Documents/GitHub/Hagidoop/src; java daemon.ClientHagidoop filesample.txt txt 3"'

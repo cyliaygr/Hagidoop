@@ -11,7 +11,8 @@ import java.util.HashMap;
 import config.Project;
 
 public class Count {
-
+	public Count()  {
+	}
 	public static void main(String[] args) {
 
 		try {
