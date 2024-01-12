@@ -29,7 +29,7 @@ public class Count {
 					else hm.put(tok, 1);
 				}
 			}
-			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("count-res")));
+			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("count-res", true)));
 			for (String k : hm.keySet()) {
 				writer.write(k+"<->"+hm.get(k).toString());
 				writer.newLine();

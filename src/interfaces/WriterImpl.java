@@ -14,6 +14,13 @@ public class WriterImpl implements Writer {
     protected boolean oEcriture = false;
     protected FileWriter fichierEcriture;
 
+    public WriterImpl (String nom) {
+        try {
+            fichierEcriture = new FileWriter(nom);
+        } catch (Exception e) {
+        }
+    }
+
 /* OVERRIDE : fn write
  * param : record de type KV
  * 

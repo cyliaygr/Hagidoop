@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.ObjectInputStream;
+import java.io.*;
 
 
 
@@ -45,6 +46,10 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
         this.port = p;
     }
 
+    public NetworkReaderWriterImpl(int p) {
+        this.port = p;
+    }
+
     public NetworkReaderWriterImpl() {
         csockList = new ArrayList<Socket>();
         ObjectList = new ArrayList<ObjectInputStream>();
@@ -55,6 +60,7 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
         try {
             // Reduce peut ouvrir une connexion pour récolter les resultats (lire des KV)
             this.ssock = new ServerSocket(port); 
+            System.out.println("Server Socket crée au port" + port);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -64,7 +70,9 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
 	public void openClient() { 
         try {
             // Map peut ouvrir une connexion pour lire des KV depuis le fragment
-            this.csock = new Socket("localhost", port); 
+            System.out.println(String.valueOf(this.port));
+            this.csock = new Socket("localhost", this.port); 
+            System.out.println("SOCKET CREE");
             reader = new BufferedReader(new InputStreamReader(csock.getInputStream()));
         } catch (IOException e) {
             e.printStackTrace();
@@ -73,7 +81,12 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
     }
 
 	public NetworkReaderWriter accept() {
-        NetworkReaderWriterImpl newConnection = new NetworkReaderWriterImpl(adresse, port, format);
+        if (ssock == null) {
+            System.err.println("Le ServerSocket n'est pas initialisé. Assurez-vous d'appeler openServer() avant accept().");
+            return null;
+        }
+    
+        NetworkReaderWriterImpl newConnection = new NetworkReaderWriterImpl(port);
         try {
             // Map peut ouvrir une connexion pour lire des KV depuis le fragment
             newConnection.asock = ssock.accept();
@@ -145,6 +158,8 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
             e.printStackTrace();
         }
     }
+
+ 
 	
 }
 

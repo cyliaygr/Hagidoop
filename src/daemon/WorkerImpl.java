@@ -25,16 +25,18 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
    static ReaderImpl readerm;
    static WriterImpl writerm;
     Socket csock;
+    static int numWorker;
     
     String nomWorker = "Worker";
 
     // CONSTRUCTEUR : récupère le numéro du worker et le fichier à traiter
-    public WorkerImpl(Map m, FileReaderWriter rw, ReaderImpl r, WriterImpl w) throws RemoteException{
+    public WorkerImpl(Map m, FileReaderWriter rw, ReaderImpl r, WriterImpl w, int n) throws RemoteException{
         this.reader = rw;
         this.mapp = m;
         this.readerm = r;
         this.writerm = w;
-        this.writer = new NetworkReaderWriterImpl();
+        this.writer = new NetworkReaderWriterImpl(4000+n);
+        this.numWorker = n;
     }
 
     public String getNameWorker() throws RemoteException {
@@ -57,7 +59,7 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
         // Création et lancement des Workers
         System.out.println("Avant thread");
        
-        Thread t = new Thread(new WorkerImpl(mapp, reader, readerm, writerm));
+        Thread t = new Thread(new WorkerImpl(mapp, reader, readerm, writerm, numWorker));
         t.start();
         System.out.println("Après thread");
 
@@ -90,6 +92,11 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
         // }
 
         //LANCE LE COUNT
+            Count cptKV = new Count();
+            String[] argsCount = new String[1];
+            argsCount[0] = "filesample-"+ numWorker +".txt";
+            cptKV.main(argsCount);		
+        
         // lancement du map depuis une instanciation de Map.java
         //mapp.map(readerm, writerm);
 
@@ -129,8 +136,9 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
 
             //On publie le worker sur le RMI, qu'on récupérera au niveau du client pour pouvoir lancer les runMap
             Registry registre = LocateRegistry.createRegistry(Integer.valueOf(args[0]));
+            numWorker = Integer.valueOf(args[1]);
             
-            WorkerImpl serveurWork = new WorkerImpl(mapp, reader, readerm, writerm);
+            WorkerImpl serveurWork = new WorkerImpl(mapp, reader, readerm, writerm, (Integer.valueOf(args[1])));
 
             String url = "//" + InetAddress.getLocalHost().getHostName() + ":" + args[0] + "/Worker";
 
