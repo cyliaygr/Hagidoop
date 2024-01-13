@@ -55,13 +55,19 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
 
         // }
 
-
+        
         // Création et lancement des Workers
         System.out.println("Avant thread");
+       try {
+            Thread t = new Thread(new WorkerImpl(mapp, reader, readerm, writerm, numWorker));
+            t.start();
+            System.out.println("Après thread");
+       } catch (Exception e) {
+        e.printStackTrace();
+       }
+
        
-        Thread t = new Thread(new WorkerImpl(mapp, reader, readerm, writerm, numWorker));
-        t.start();
-        System.out.println("Après thread");
+       
 
         //************$$ SUREMENT ICI QUE FAUT OPENCLIENT OPENSERVER ETC (???)
     }

@@ -81,23 +81,19 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
     }
 
 	public NetworkReaderWriter accept() {
-        if (ssock == null) {
-            System.err.println("Le ServerSocket n'est pas initialisé. Assurez-vous d'appeler openServer() avant accept().");
-            return null;
-        }
-    
-        NetworkReaderWriterImpl newConnection = new NetworkReaderWriterImpl(port);
         try {
-            // Map peut ouvrir une connexion pour lire des KV depuis le fragment
-            newConnection.asock = ssock.accept();
+            Socket asock = ssock.accept();
+            NetworkReaderWriterImpl newConnection = new NetworkReaderWriterImpl(port);
+            newConnection.setSocket(asock);
             return newConnection;
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
-          
+    }
 
-       
+    private void setSocket(Socket socket) {
+        this.csock = socket;
     }
 
 	public void closeServer() { 
@@ -127,34 +123,21 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
 
 
     public KV read() {	
-		String line = null;
-		if(oLect){
-			try{
-				line = buffer.readLine();
-				this.index++;
-				
-			}catch (IOException e){
-				e.printStackTrace();
-			}
-		} else {
-			System.err.println("Message erreur de READ");
-		}
-		
-		if(line != null){
-			return new KV(""+index,line);
-		} else {
-			return null;
-		}
+		try {
+            ObjectInputStream objectInputStream = new ObjectInputStream(csock.getInputStream());
+            return (KV) objectInputStream.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
 	}
 
     public void write(KV record) {
-        if (!oEcriture) {
-            System.err.println("Opértation interdite");
-            return;
-        }
         try {
-            fichierEcriture.write(record.v + "\n");
-        } catch (Exception e) {
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(csock.getOutputStream());
+            objectOutputStream.writeObject(record);
+            objectOutputStream.flush();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
