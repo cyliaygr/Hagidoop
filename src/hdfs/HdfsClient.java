@@ -14,8 +14,9 @@ import interfaces.FileTxtReaderWriter;
 import interfaces.FileKVReaderWriter;
 
 public class HdfsClient extends Thread {
+	Config config = new Config();
 
-	static int nbrFragment = 3;
+	static int nbrFragment;
 	public static final int FMT_TXT = 0;
 	public static final int FMT_KV = 1;
 	private String fname;
@@ -30,7 +31,6 @@ public class HdfsClient extends Thread {
 	
 	// Permet de supprimer les fragments d'un fichier stocké dans HDFS
 	public static void HdfsDelete(String fname) {
-		System.out.println("Demande de suppression du fichier : "+ fname);
 		File file = new File(fname);
 		file.delete();
 		System.out.println(fname +" a été supprimé.");
@@ -42,31 +42,29 @@ public class HdfsClient extends Thread {
 	public static void HdfsWrite(int fmt, String fname) {
 		try {
 			// Creation des sockets pour envoyer les fragments
+			nbrFragment = config.getNbWorker();
 			Socket[] s               = new Socket[nbrFragment];
-			OutputStream[] os        = new OutputStream[nbrFragment];
 			ObjectOutputStream[] oos = new ObjectOutputStream[nbrFragment];
 			for(int i=0; i<nbrFragment; i++){
-				s[i] = new Socket("localhost", (8001+i));
-				os[i]  = s[i].getOutputStream();
-				oos[i] = new ObjectOutputStream(os[i]);
+				s[i] = new Socket(config.getNom(i+1), config.getPortSocket(i+1)); //i+1 car la machine 0 est le client
+				oos[i] = new ObjectOutputStream(s[i].getOutputStream());
 			}
-
 
 			// Fichier .txt à fragemnter
 			if (fmt == FileReaderWriter.FMT_TXT){
 				// Reader du fichier à fragmenter
 				BufferedReader fileReader = new BufferedReader(new FileReader(fname));
-
+				
 				// Lecture et envoi des lignes du fichier une par une
 				String line;
 				int nbrFragmentSelectione = 0;
+				int nbrFragment = config.getNbWorket();
+
+				system.out.println("HDFS : fragmentation de " + fname + " en " + nbrFragment + " fragments.");
 				while ((line = fileReader.readLine()) != null) {
 					oos[nbrFragmentSelectione].writeObject(line);
 					nbrFragmentSelectione = (nbrFragmentSelectione+1)%nbrFragment;
 				}
-
-				
-				System.out.println("HdfsClient : fichier "+fname+" fragmenté en "+nbrFragment+" fragments.");
 
 				fileReader.close();
 			}
@@ -80,9 +78,8 @@ public class HdfsClient extends Thread {
 
 			// Fermeture des sockets avec les serveurs
 			for(int i=0; i<nbrFragment; i++){
-				oos[i].writeObject("HDFS : fin de fichier");
+				oos[i].writeObject(null); //Indique la fin du fichier
 				oos[i].close();
-				os[i].close();
 				s[i].close();
 			}
 

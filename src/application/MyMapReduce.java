@@ -30,7 +30,6 @@ public class MyMapReduce implements MapReduce {
 	public void reduce(Reader reader, Writer writer) {
 		HashMap<String,Integer> hm = new HashMap<String,Integer>();
 		KV kv;
-		System.out.println("lecture reduce");
 		while ((kv = reader.read()) != null) {
 			if (hm.containsKey(kv.k)) hm.put(kv.k, hm.get(kv.k)+Integer.parseInt(kv.v));
 			else hm.put(kv.k, Integer.parseInt(kv.v));

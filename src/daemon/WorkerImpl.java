@@ -18,141 +18,82 @@ import java.net.Socket;
 //import io.*;
 
 public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
-
-   static Map mapp;
-   static FileReaderWriter reader;
-   NetworkReaderWriter writer;
-   static ReaderImpl readerm;
-   static WriterImpl writerm;
-    Socket csock;
-    static int numWorker;
     
-    String nomWorker = "Worker";
+    Config config;
+    NetworkReaderWriter networkRW;
 
-    // CONSTRUCTEUR : récupère le numéro du worker et le fichier à traiter
-    public WorkerImpl(Map m, FileReaderWriter rw, ReaderImpl r, WriterImpl w, int n) throws RemoteException{
-        this.reader = rw;
-        this.mapp = m;
-        this.readerm = r;
-        this.writerm = w;
-        this.writer = new NetworkReaderWriterImpl(4000+n);
-        this.numWorker = n;
+    private String nomFichierIn;
+    private String workerName;
+    private int workerPort;
+    private int workerNum;
+    
+
+    public WorkerImpl(String fname, int num){
+        this.fname     = fname; //Nom du fragment
+        this.workerNum = num;   //Numéro du worker
     }
 
-    public String getNameWorker() throws RemoteException {
-        return nomWorker; 
-    }
-
-    public void setNameWorker(String n) throws RemoteException {
-        this.nomWorker = n;
-    }
 
     public void runMap(Map m, FileReaderWriter reader, NetworkReaderWriter writer) throws RemoteException{
-        // try{
-        //     FileWriter filewriter = new FileWriter(new File(nomFichier));
-        //     filewriter.write("Worker "+ numWorker+" bien lancé\n");
-        // }catch(Exception e){
+        try {
+            //----- Lecture du fragment -----
+            HdfsServer hdfsS = new HdfsServer(); 
+            hdfsS.HdfsRead(workerNum, fname.replace(".txt", "-"+workerNum+".txt"));
 
-        // }
+            // ----- INIT -----
+            // Initialise le reader sur le fragment
+            reader.open("R");
+            // Initialise le writer sur le NetworkRW connecté au reduce du startJob
+            writer.openClient();
 
-        
-        // Création et lancement des Workers
-        System.out.println("Avant thread");
-       try {
-            Thread t = new Thread(new WorkerImpl(mapp, reader, readerm, writerm, numWorker));
-            t.start();
-            System.out.println("Après thread");
-       } catch (Exception e) {
-        e.printStackTrace();
-       }
-
-       
-       
-
-        //************$$ SUREMENT ICI QUE FAUT OPENCLIENT OPENSERVER ETC (???)
+            // ----- RUNMAP -----
+            mr.map(reader, writer);
+            
+            // ----- FERMETURE -----
+            writer.closeClient();
+            reader.close(); 
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void run()  {
-       // writer = new NetworkReaderWriterImpl();
-       System.out.println("Avant Openclient");
-        ((NetworkReaderWriterImpl) writer).openClient();
-        System.out.println("Après Openclient");
-
-        // LECTURE DE FRAGMENT  
-        // Appel à la fonction open en précisant le mode (reading/writing)
         try {
-            System.out.println("Avant lecture frag");
-            reader.setFname(reader.getFname());
-            reader.open("R");
-            System.out.println("Après lecture frag");
+            
+
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        // // ECRITURE DES RESUTLATS (KV)
-        // try {
-        //     reader.setFname(reader.getFname());
-        //     reader.open("W");
-        // } catch (Exception e) {
-        //     e.printStackTrace();
-        // }
-
-        //LANCE LE COUNT
-            Count cptKV = new Count();
-            String[] argsCount = new String[1];
-            argsCount[0] = "filesample-"+ numWorker +".txt";
-            cptKV.main(argsCount);		
-        
-        // lancement du map depuis une instanciation de Map.java
-        //mapp.map(readerm, writerm);
-
-        
-        //ENVOIE LES RESULTATS AU CLIENT
-        //Ouvre une connexion avec le Client
-        try {
-            System.out.println("Avant csock");
-            OutputStream os  = ((NetworkReaderWriterImpl) writer).csock.getOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(os);
-            //Ouvre un reader sur le fichier resultats (KV)
-            FileKVReaderWriter readerKV = new FileKVReaderWriter("count-res");
-            readerKV.open("R");
-            System.out.println("Après csock");
-
-            //Lecture et envoie ligne par ligne du resultat de count
-            KV kvLu;
-            System.out.println("Read en cours");
-            while ((kvLu = readerKV.read()) != null) {
-                oos.writeObject(kvLu);
-            }
-            oos.writeObject("fin de resultat"); //Indique la fin d'envoie
-
-            readerKV.close();
-            oos.close();
-            os.close();
-        } catch (Exception e) {
-            System.out.println("Non read");
-            e.printStackTrace();
-        }
-
-        writer.closeClient();
     }
 
+    //Parametres d'appel : Nom de la machine où s'execute le worker
+    //                     Numéro du port RMI du worker
+    //                     Numéro du worker
+    //                     Nom du fragment
     public static void main(String[] args) {
         try {
+        // ----------------------------------------------
+		//      LECTURE DES ARGUMENTS
+		// ----------------------------------------------
+            workerName = args[0];                   //Nom de la machine où s'execute le worker
+            workerPort = Integer.valueOf(args[1]);  //Numéro du port RMI du worker
+            workerNum  = Integer.valueOf(args[2]);  //Numéro du worker
+            fname      = args[3];                   //Nom du fragment
 
             //On publie le worker sur le RMI, qu'on récupérera au niveau du client pour pouvoir lancer les runMap
-            Registry registre = LocateRegistry.createRegistry(Integer.valueOf(args[0]));
-            numWorker = Integer.valueOf(args[1]);
+            Registry registre = LocateRegistry.createRegistry(workerNum);
             
-            WorkerImpl serveurWork = new WorkerImpl(mapp, reader, readerm, writerm, (Integer.valueOf(args[1])));
+            WorkerImpl serveurWork = new WorkerImpl(workerName,workerNum);
 
+            //TODO              workerName ?                                     workerPort
             String url = "//" + InetAddress.getLocalHost().getHostName() + ":" + args[0] + "/Worker";
 
             Naming.rebind(url, serveurWork);
             System.out.println("Serveur Worker" + serveurWork + " publié sur le RMI");
 
-
-            } catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

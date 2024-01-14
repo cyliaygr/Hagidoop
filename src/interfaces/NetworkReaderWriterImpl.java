@@ -59,8 +59,8 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
     public void openServer() {
         try {
             // Reduce peut ouvrir une connexion pour récolter les resultats (lire des KV)
-            this.ssock = new ServerSocket(port); 
-            System.out.println("Server Socket crée au port" + port);
+            this.ssock = new ServerSocket(this.port); 
+            System.out.println("Server Socket crée au port" + this.port);
         } catch (IOException e) {
             e.printStackTrace();
         }
