@@ -45,14 +45,14 @@ public class JobLauncher {
 		// ----- LANCE LE REDUCE -----
 		FileKVReaderWriter writerRes = new FileKVReaderWriter(path + nomExt[0] + "-res." + nomExt[1]);	
 		writerRes.open("R");
-		networkRW.openServeur();
+		networkRW.openServer();
 
 		FileKVReaderWriter connexionRecu = networkRW.accept();
-		connexionRecu.openServeur();
+		connexionRecu.openServer();
 		mr.reduce(networkRW, writerRes);
 		connexionRecu.closeServer();
 		
-		writerRes.closeServeur();
+		writerRes.closeServer();
 		networkRW.close();
 			
 	}
