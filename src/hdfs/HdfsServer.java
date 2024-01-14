@@ -61,10 +61,12 @@ public class HdfsServer {
     // appel des méthodes précédentes depuis la ligne de commande
         //int type = Integer.parseInt(args[1]); //FMT_TXT ou FMT_KV 
         int id = Integer.parseInt(args[3]);
-        String newName = args[2].replace(".txt", "-"+id+".txt");
+        String fname =  args[2];
+        String newName = fname.replace(".txt", "-"+id+".txt");
+        String if = args[3];
 
 
-        System.out.println("Je suis HdfsServer_" + args[3] + " et j'écris le fragment " + newName);
+        System.out.println("Je suis HdfsServer_" + id + " et j'écris le fragment " + newName);
         
         // Lecture du frament de fichier envoyé par le HdfsClient
         HdfsRead(id, newName);

@@ -175,7 +175,7 @@ public class ClientHagidoop {
 			writer = new FileKVReaderWriter(reduceDestFname);
 			
 		
-			
+			// TODO : A supprimer
 			// appliquer reduce sur le résultat
 			// reader : format kv ; writer : format kv
 			System.out.println("Début du reduce");

@@ -60,12 +60,13 @@ public class JobLauncher {
 	writerm = new WriterImpl(fichierdest);
 	readerm = new ReaderImpl(fname);
 
+	// TODO : a suppr
 	// lancement du reduce
 	mr.reduce(writer, writerm);
 	
-	// TRAITEMENT SUR CHAQUE FRAGMENT
+	// RUNMAP
+	// Lance le map sur tout les workers
 	try {
-		// CREE ET ACTIVE LES WORKERS
 		if (nbFragments == 1) {
 			
 			// On rajoute _1 au nom puisqu'un seul fragment
