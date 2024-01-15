@@ -107,10 +107,14 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
 
 	public void closeServer() { 
         try {
-            if (!ssock.isClosed() && ssock != null) {
-                ssock.close();
+            if (ssock != null) {
+                if(!ssock.isClosed()){ 
+                    ssock.close();
+                } else { 
+                    System.out.println("Socket Server est déjà fermé");
+                }
             } else  { 
-                System.out.println("Socket Server déjà fermé");
+                System.out.println("Socket Server est null, demande de fermture refusé");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -119,10 +123,14 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
 
 	public void closeClient() {
         try {
-            if (!csock.isClosed() && csock != null) {
-                csock.close();
+            if (csock != null) {
+                if(!csock.isClosed()){ 
+                    csock.close();
+                } else { 
+                    System.out.println("Socket Client est déjà fermé");
+                }
             } else  { 
-                System.out.println("Socket Client déjà fermé");
+                System.out.println("Socket Client est null, demande de fermture refusé");
             }
         } catch (IOException e) {
             e.printStackTrace();
