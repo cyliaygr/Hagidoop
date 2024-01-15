@@ -39,6 +39,14 @@ public class HdfsClient extends Thread {
 	// stockage sur les différentes machines. fmt est le format du fichier (FMT_TXT ou FMT_KV).
 	public static void HdfsWrite(int fmt, String fname) {
 		try {
+			//Attend 1s pour être sur que les workers aient créé leurs SocketServeur
+			try {
+				
+				Thread.sleep(1000);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
 			// Creation des sockets pour envoyer les fragments
 			nbrFragment = config.getNbWorker();
 			Socket[] s               = new Socket[nbrFragment];

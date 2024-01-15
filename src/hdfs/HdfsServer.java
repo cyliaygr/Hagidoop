@@ -35,7 +35,7 @@ public class HdfsServer {
             
 
             // Lecture du fragment en entier
-            FileWriter filewriter = new FileWriter(new File(Project.PATH+"/data/"+fname));
+            FileWriter filewriter = new FileWriter(new File(Project.PATH+"/data/"+config.getFname().replace(".txt", "-"+id+".txt")));
             
             String ligneFragment = (String)ois.readObject(); //Lecture de la premiere ligne
             while(ligneFragment != null){   // null = fin de fichier
@@ -44,7 +44,7 @@ public class HdfsServer {
                 ligneFragment = (String)ois.readObject();
             }
 
-            System.out.println("HDFS : fragment " + fname + " reçu.");
+            System.out.println("HDFS : fragment " + config.getFname().replace(".txt", "-"+id+".txt") + " reçu.");
             filewriter.close();
             ois.close();
             ssock.close();
