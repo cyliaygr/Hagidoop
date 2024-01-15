@@ -91,7 +91,7 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
             WorkerImpl serveurWork = new WorkerImpl(workerName,workerNum);
 
             //TODO              workerName ?                                     workerPort
-            String url = "//" + InetAddress.getLocalHost().getHostName() + ":" + args[0] + "/Worker";
+            String url = "//" + workerName + ":" + workerPort + "/Worker";
 
             Naming.rebind(url, serveurWork);
             System.out.println("Serveur Worker" + serveurWork + " publié sur le RMI");

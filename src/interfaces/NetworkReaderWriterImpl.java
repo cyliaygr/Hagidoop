@@ -14,6 +14,11 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.ObjectInputStream;
 import java.io.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
+
+
 
 
 
@@ -33,6 +38,8 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
     protected boolean oLect = false;
     protected boolean oEcriture = false;
     protected FileWriter fichierEcriture;
+    private BlockingQueue<Boolean> serverSocketReady = new LinkedBlockingQueue<>();
+
 
 
 	protected FileReader fichierLecture;
@@ -61,6 +68,7 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
             // Reduce peut ouvrir une connexion pour récolter les resultats (lire des KV)
             this.ssock = new ServerSocket(this.port); 
             System.out.println("Server Socket crée au port" + this.port);
+            serverSocketReady.offer(true); // Signal que le serveur est prêt
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -69,12 +77,13 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
 
 	public void openClient() { 
         try {
+            serverSocketReady.take(); // Attend que le serveur soit prêt
             // Map peut ouvrir une connexion pour lire des KV depuis le fragment
             System.out.println(String.valueOf(this.port));
             this.csock = new Socket("localhost", this.port); 
             System.out.println("SOCKET CREE");
             reader = new BufferedReader(new InputStreamReader(csock.getInputStream()));
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
