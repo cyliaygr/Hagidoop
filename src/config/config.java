@@ -1,3 +1,5 @@
+package config;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -6,11 +8,12 @@ import java.io.IOException;
 public class Config {
     private String fileConfig = Project.PATH + "/src/config/config_hagidoop.cfg";
     
-    private String[] noms = new String[nbMachines];
-    private String[] portsSocket = new String[nbMachines];
-    private String[] portsRMI = new String[nbMachines];
-    private String[] urls = new String[nbMachines];
+    private int numMaxWorker = 15;
     private int numWorker;
+    private String[] noms        = new String[numMaxWorker];
+    private String[] portsSocket = new String[numMaxWorker];
+    private String[] portsRMI    = new String[numMaxWorker];
+    private String[] urls        = new String[numMaxWorker];
     private String fname;
 
     // Le constructeur lit le fichier de config
@@ -20,6 +23,7 @@ public class Config {
             // Lecture du fichier de config
 			br = new BufferedReader(new FileReader(fileConfig));
 			String st; 
+            int cptLigne = 0; 
 			while ((st = br.readLine()) != null) {
                 // si la ligne n'est pas un commentaire
                 if (!st.startsWith("#")) {
@@ -39,39 +43,43 @@ public class Config {
                     if (cptLigne == 3) {
                         fname = st;
                     }
+                    // 5eme ligne = nbr de worker
+                    if (cptLigne == 4) {
+                        numWorker = Integer.parseInt(st);
+                    }
                     cptLigne++;					  
                 }
             }
 		    br.close();
 
-            numWorker =  Math.min(Math.min(portsSocket.length, portsURL.length), noms.length) - 1;
+            numMaxWorker =  Math.min(Math.min(portsSocket.length, portsRMI.length), noms.length) - 1;
+            if (numWorker > numMaxWorker){
+                System.err.println("Fichier config mauvais :Plus de worker demandé qu'il y en a de disponible");
+            }
 
             // URL
             // si le fichier de configuration est correct
-            if (noms.length != 0 && ports.length == noms.length) {
-                for (int i=0 ; i < nbMachines ; i++) {
-                    urls[i] = "//" + noms[i] + ":" + portsRMI[i] + "/Worker";
-                    // System.out.println(urls[i]);
-                }
-            } else {
-                system.err.println("Fichier config invalide");
+            for (int i=0 ; i < numMaxWorker ; i++) {
+                urls[i] = "//" + noms[i] + ":" + portsRMI[i] + "/Worker";
+                // System.out.println(urls[i]);
             }
+ 
 									
 		} catch (Exception e) {
-            system.out.println("Fichier config invalide");
+            System.out.println("Fichier config invalide");
 			e.printStackTrace();
 		}
     }
 
     private void iValide(int i){
         if(i > numWorker){
-            system.err.println("Machine n°" + (i) + " invalide, il y a " + numWorker + "machines.")
+            System.err.println("Machine n°" + (i) + " invalide, il y a " + numWorker + "machines.");
         }
     }
 
     public String getNom (int i){
         iValide(i);
-        return noms[i]
+        return noms[i];
     }
 
     public int getPortSocket(int i){
@@ -86,7 +94,11 @@ public class Config {
 
     public String getURL (int i){
         iValide(i);
-        return urls[i]
+        return urls[i];
+    }
+
+    public int getNbMaxWorker (){
+        return numMaxWorker;
     }
 
     public int getNbWorker (){

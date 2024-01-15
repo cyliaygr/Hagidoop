@@ -11,8 +11,10 @@ import application.MyMapReduce;
 import interfaces.FileReaderWriter;
 import daemon.JobLauncher;
 
+import config.*;
+
 public class HdfsServer {
-    Config config = new Config();
+    static Config config = new Config();
     int id;
 
     public HdfsServer(int i) {
@@ -26,9 +28,9 @@ public class HdfsServer {
 
         try {
             // Socket de lecture
-            ServerSocket ssock = new ServerSocket(config.getNom(i), config.getPortSocket(i));
+            ServerSocket ssock = new ServerSocket(config.getPortSocket(id));
             Socket s = ssock.accept();
-            ObjectInputStream ois = new ObjectInputStream(s.getInputStream(););
+            ObjectInputStream ois = new ObjectInputStream(s.getInputStream());
             
             // Lecture du fragment en entier
             FileWriter filewriter = new FileWriter(new File(Project.PATH+"/data/"+fname));
@@ -40,7 +42,7 @@ public class HdfsServer {
                 ligneFragment = (String)ois.readObject();
             }while(ligneFragment != null)
 
-            system.out.println("HDFS : fragment " + fname + " reçu.")
+            System.out.println("HDFS : fragment " + fname + " reçu.");
             filewriter.close();
             ois.close();
             ssock.close();
@@ -62,7 +64,6 @@ public class HdfsServer {
         int id = Integer.parseInt(args[3]);
         String fname =  args[2];
         String newName = fname.replace(".txt", "-"+id+".txt");
-        String if = args[3];
 
 
         //System.out.println("Je suis HdfsServer_" + id + " et j'écris le fragment " + newName);

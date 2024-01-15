@@ -10,9 +10,11 @@ import java.rmi.Naming;
 import java.net.InetAddress;
 import java.io.*;
 import application.*;
+import config.*;
 
 
 import interfaces.*;
+import hdfs.*;
 import java.net.Socket;
 
 //import io.*;
@@ -21,14 +23,15 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
     
     Config config;
     NetworkReaderWriter networkRW;
-
-    private String nomFichierIn;
-    private String workerName;
-    private int workerPort;
-    private int workerNum;
     
 
-    public WorkerImpl(String fname, int num){
+    static private String fname;
+    static private String workerName;
+    static  private int workerPort;
+    static private int workerNum;
+    
+
+    public WorkerImpl(String fname, int num) throws RemoteException{
         this.fname     = fname; //Nom du fragment
         this.workerNum = num;   //Numéro du worker
     }
@@ -37,7 +40,7 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
     public void runMap(Map m, FileReaderWriter reader, NetworkReaderWriter writer) throws RemoteException{
         try {
             //----- Lecture du fragment -----
-            HdfsServer hdfsS = new HdfsServer(); 
+            HdfsServer hdfsS = new HdfsServer(workerNum); 
             hdfsS.HdfsRead(workerNum, fname.replace(".txt", "-"+workerNum+".txt"));
 
             // ----- INIT -----
@@ -47,7 +50,7 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
             writer.openClient();
 
             // ----- RUNMAP -----
-            mr.map(reader, writer);
+            m.map(reader, writer);
             
             // ----- FERMETURE -----
             writer.closeClient();

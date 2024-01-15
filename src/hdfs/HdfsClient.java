@@ -7,14 +7,12 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import interfaces.FileReaderWriter;
-import interfaces.DefaultFileReaderWriterFactory;
-import interfaces.FileReaderWriterFactory;
-import interfaces.FileTxtReaderWriter;
-import interfaces.FileKVReaderWriter;
+import interfaces.*;
+
+import config.*;
 
 public class HdfsClient extends Thread {
-	Config config = new Config();
+	static Config config = new Config();
 
 	static int nbrFragment;
 	public static final int FMT_TXT = 0;
@@ -58,9 +56,9 @@ public class HdfsClient extends Thread {
 				// Lecture et envoi des lignes du fichier une par une
 				String line;
 				int nbrFragmentSelectione = 0;
-				int nbrFragment = config.getNbWorket();
+				int nbrFragment = config.getNbWorker();
 
-				system.out.println("HDFS : fragmentation de " + fname + " en " + nbrFragment + " fragments.");
+				System.out.println("HDFS : fragmentation de " + fname + " en " + nbrFragment + " fragments.");
 				while ((line = fileReader.readLine()) != null) {
 					oos[nbrFragmentSelectione].writeObject(line);
 					nbrFragmentSelectione = (nbrFragmentSelectione+1)%nbrFragment;

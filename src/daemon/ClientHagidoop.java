@@ -17,11 +17,10 @@ import java.io.FileWriter;
 
 public class ClientHagidoop {
     Config config = new Config();
-	public static Worker listeWorker[];// liste des références aux workers dans le regsitre RMI
 	
-	private String fNameIn;
-	private int nbMachines;
-	private int nbWorker;
+	static private String fNameIn;
+	static private int nbMachines;
+	static private int nbWorker;
 
     private static void usage() {
 		System.out.println("Utilisation : java HagidoopClient nomFichier format nbWorker");
@@ -38,6 +37,7 @@ public class ClientHagidoop {
 		//      LECTURE DES ARGUMENTS
 		// ----------------------------------------------
 			// Verification du format des arguments
+			String[] formats = {"txt", "kv" };
 			if (args.length < 3) {
 				usage();
 				System.exit(1);
@@ -53,37 +53,36 @@ public class ClientHagidoop {
 			nbMachines = Integer.parseInt(args[2]);
 
 			// fichier résultat du reduce : ajout du suffixe "-red"
+			String[] nomExt = fNameIn.split("\\.");
 			String reduceDestFname = "data/" + nomExt[0] + "-red" + "." + nomExt[1];
 
 			// Récupérer le format de fichier indiqué en argument
+			int ft;
 			if (args[1].equals("line")) {
-				int ft = FileReaderWriter.FMT_TXT;
+				ft = FileReaderWriter.FMT_TXT;
 			} else {
-				int ft = FileReaderWriter.FMT_KV;
+				ft = FileReaderWriter.FMT_KV;
 			}
 
 			// récupérer le nombre de machines
 			nbWorker = Integer.parseInt(args[2]);
 
-			// récupérer les références des objets Daemon distants
-			listeWorker = new Worker[nbMachines];
+			
 
-			JobLauncher job = new JobLauncher(ft);
+			JobLauncher job = new JobLauncher();
 			MyMapReduce mr = new MyMapReduce();
 
 		// ----------------------------------------------------
 		//			LANCEMENT DES WORKERS
 		// ----------------------------------------------------
 
-			// Connexion RMI avec les Workers déjà créé par le script
-			for (int i = 0 ; i < nbMachines ; i++) {
-				System.out.println(config.getURL(i+1)); //(i+1) car la machine 0 est celle du client
-				listeWorker[i]=(Worker) Naming.lookup(config.getURL(i+1));
-			}
+			
 
 			// Lancement des tâches
 			System.out.println("Lancement de startJob()");
-			mapReduce.main(fNameIn);
+			String[] mrArgs = new String[1];
+			mrArgs[0] = fNameIn;
+			mr.main(mrArgs);
 			//job.startJob(mr,FileReaderWriter.FMT_TXT, fNameIn);
 
 
