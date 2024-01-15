@@ -142,6 +142,7 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
     public KV read() {	
 		try {
             ObjectInputStream objectInputStream = new ObjectInputStream(csock.getInputStream());
+            //if (readO = clé) then return null (ou le bon truc)
             return (KV) objectInputStream.readObject();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -151,6 +152,7 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
 
     public void write(KV record) {
         try {
+            // if (record = EOF ou null) then envoie clé
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(csock.getOutputStream());
             objectOutputStream.writeObject(record);
             objectOutputStream.flush();
