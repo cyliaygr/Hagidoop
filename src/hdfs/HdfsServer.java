@@ -29,9 +29,11 @@ public class HdfsServer {
         try {
             // Socket de lecture
             ServerSocket ssock = new ServerSocket(config.getPortSocket(id));
+            System.out.println("Socket en attente");
             Socket s = ssock.accept();
             ObjectInputStream ois = new ObjectInputStream(s.getInputStream());
             
+
             // Lecture du fragment en entier
             FileWriter filewriter = new FileWriter(new File(Project.PATH+"/data/"+fname));
             
@@ -40,7 +42,7 @@ public class HdfsServer {
                 filewriter.write(ligneFragment + "\n");
 
                 ligneFragment = (String)ois.readObject();
-            }while(ligneFragment != null)
+            }
 
             System.out.println("HDFS : fragment " + fname + " reçu.");
             filewriter.close();

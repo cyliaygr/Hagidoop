@@ -72,7 +72,7 @@ public class Config {
     }
 
     private void iValide(int i){
-        if(i > numWorker){
+        if(i > (numWorker+1)){
             System.err.println("Machine n°" + (i) + " invalide, il y a " + numWorker + "machines.");
         }
     }

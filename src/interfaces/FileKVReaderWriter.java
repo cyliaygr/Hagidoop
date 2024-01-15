@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 
 public class FileKVReaderWriter implements FileReaderWriter {
-	
+
 	/**
 	 * 
 	 */
@@ -39,14 +39,15 @@ public class FileKVReaderWriter implements FileReaderWriter {
 
 	public void open(String mode) {
 		try {
-            File fichier = new File(this.nomFichier);
+            //File fichier = new File(this.nomFichier);
             
-            File parentDirs = fichier.getParentFile();
-            if (parentDirs != null) {
-                parentDirs.mkdirs();
-            }
+            //File parentDirs = fichier.getParentFile();
+            //if (parentDirs != null) {
+            //    parentDirs.mkdirs();
+            //}
             
             if (mode == "R"){
+            	File fichier = new File(this.nomFichier);
             	System.out.print("Ouverture du fichier " + nomFichier + " en mode lecture -> ");
             	oLect = true;
                 //On ouvre le fichie en lecture
@@ -55,6 +56,7 @@ public class FileKVReaderWriter implements FileReaderWriter {
                 buffer = new BufferedReader(fichierLecture);
 
             } else {
+            	File fichier = new File(this.nomFichier);
             	System.out.println("Ouverture du fichier "+ nomFichier + " en mode ecriture.");
             	oEcriture = true;
             	fichier.setWritable(true);
@@ -129,7 +131,7 @@ public class FileKVReaderWriter implements FileReaderWriter {
 			return;
 		}
 		try {
-			fichierEcriture.write(record.v + "\n");
+			fichierEcriture.write(record.k+"<->"+record.v + "\n");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

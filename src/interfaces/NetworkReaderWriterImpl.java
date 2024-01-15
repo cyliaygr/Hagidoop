@@ -25,7 +25,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class NetworkReaderWriterImpl implements NetworkReaderWriter {
 
     public Socket csock;
-    public ServerSocket ssock;
+    public transient ServerSocket ssock;
     public Socket asock;
     private int port;
     private BufferedReader reader;
@@ -78,10 +78,11 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
 	public void openClient() { 
         try {
             serverSocketReady.take(); // Attend que le serveur soit prêt
+            Thread.sleep(3000);//TEST
             // Map peut ouvrir une connexion pour lire des KV depuis le fragment
             System.out.println(String.valueOf(this.port));
             this.csock = new Socket("localhost", this.port); 
-            System.out.println("SOCKET CREE");
+            System.out.println("SOCKET CREE : "+this.port);
             reader = new BufferedReader(new InputStreamReader(csock.getInputStream()));
         } catch (Exception e) {
             e.printStackTrace();

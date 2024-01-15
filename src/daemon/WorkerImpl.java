@@ -21,7 +21,7 @@ import java.net.Socket;
 
 public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
     
-    Config config;
+    Config config = new Config();;
     NetworkReaderWriter networkRW;
     
 
@@ -36,27 +36,32 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
         this.workerNum = num;   //Numéro du worker
     }
 
-    public int getNbWorker(){
-        return this.workerNum;
-    }
-
-
     public void runMap(Map m, FileReaderWriter reader, NetworkReaderWriter writer) throws RemoteException{
         try {
+            System.out.println("lancement du runMap");
             //----- Lecture du fragment -----
-            HdfsServer hdfsS = new HdfsServer(workerNum); 
-            hdfsS.HdfsRead(workerNum, fname.replace(".txt", "-"+workerNum+".txt"));
+            // HdfsServer hdfsS = new HdfsServer(workerNum);
+            // System.out.println("HDFS créé"); 
+            // hdfsS.HdfsRead(workerNum, fname.replace(".txt", "-"+workerNum+".txt"));
 
             // ----- INIT -----
             // Initialise le reader sur le fragment
             reader.open("R");
             // Initialise le writer sur le NetworkRW connecté au reduce du startJob
+            Thread.sleep(1000);//TEST
             writer.openClient();
 
+            
+            FileKVReaderWriter filewriter = new FileKVReaderWriter((Project.PATH+"/data/"+config.getFname().replace(".txt", "-res"+workerNum+".kv")));
+            filewriter.open("W");
+
+
             // ----- RUNMAP -----
-            m.map(reader, writer);
+            m.map(reader, filewriter);
+            System.out.println("runMap fini");
             
             // ----- FERMETURE -----
+            filewriter.close();
             writer.closeClient();
             reader.close(); 
             
@@ -99,7 +104,7 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
                 String url = "//" + workerName + ":" + workerPort + "/Worker-" + workerNum ;
     
                 Naming.rebind(url, serveurWork);
-                System.out.println("Serveur Worker" + serveurWork + " publié sur le RMI");
+                System.out.println("Serveur Worker" + serveurWork + " publié sur le RMI :"+ url);
     
                 
             } catch (Exception e) {

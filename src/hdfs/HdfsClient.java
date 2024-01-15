@@ -44,6 +44,8 @@ public class HdfsClient extends Thread {
 			Socket[] s               = new Socket[nbrFragment];
 			ObjectOutputStream[] oos = new ObjectOutputStream[nbrFragment];
 			for(int i=0; i<nbrFragment; i++){
+				System.out.println(config.getNom(i+1));
+				System.out.println(config.getPortSocket(i+1));
 				s[i] = new Socket(config.getNom(i+1), config.getPortSocket(i+1)); //i+1 car la machine 0 est le client
 				oos[i] = new ObjectOutputStream(s[i].getOutputStream());
 			}

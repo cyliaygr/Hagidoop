@@ -42,19 +42,20 @@ public class JobLauncher {
 			//}
 
 			for (int i = 0 ; i < nbWorker ; i++) {
-				System.out.println(config.getURL(i));
-				Worker worker = (Worker) Naming.lookup(config.getURL(i));
+				System.out.println("Worker "+i+" en "+config.getURL(i+1));
+				Worker worker = (Worker) Naming.lookup(config.getURL(i+1));
 				listeWorker.add(worker);
 			}
 			
 			
 			//Writer sur le réseau vers reduce
+			System.out.println("Nom : "+config.getNom(0)+" port "+config.getPortSocket(0));
 			NetworkReaderWriterImpl networkRW = new NetworkReaderWriterImpl(config.getNom(0),FileReaderWriter.FMT_KV, config.getPortSocket(0));	  
 			
 			// Ouvrez le ServerSocket dans un thread séparé
-			new Thread(() -> {
-				networkRW.openServer();
-			}).start();
+			//new Thread(() -> {
+			//	networkRW.openServer();
+			//}).start();
 			
 			//for (int i = 0; i < nbWorker ; i ++){
 				//Reader sur le fragment i
@@ -64,23 +65,39 @@ public class JobLauncher {
 				//listeWorker[i].runMap(mr, reader, networkRW);
 				
 			//}
-
+			//TODO : c'est moche
+			// Créer et démarrer un thread pour chaque worker
+			List<Thread> workerThreads = new ArrayList<>();
+			int i = 1;
 			for (Worker worker : listeWorker) {
-				FileReaderWriter reader = new FileTxtReaderWriter(pathData + nomExt[0] + "-" + worker.getNbWorker() + "." + nomExt[1]);	
+				FileReaderWriter reader = new FileTxtReaderWriter(pathData + nomExt[0] + "-" + i + "." + nomExt[1]);	
 				System.out.println("lancement runmap");
 				// Appeler runMap sur chaque Worker
-				worker.runMap(mr, reader, networkRW);
+				//worker.runMap(mr, reader, networkRW);
+				Thread workerThread = new Thread(() -> {
+					// Appeler runMap sur chaque Worker
+					try {
+						worker.runMap(mr, reader, networkRW);
+					} catch (RemoteException e) {
+						// Gérer l'exception RemoteException ici
+						e.printStackTrace();
+					}				
+				});
+			
+				workerThreads.add(workerThread);
+				workerThread.start();
+				i++;
 			}
 			
 			// ----- ENVOIE LES FRAGMENTS -----
 			// Attend 0,1s, pour etre sur que les hdfsServeur.read() sont bien ouvert  
-			//Thread.sleep(100); 
 			
-			long t1 = System.currentTimeMillis();
-			HdfsClient hdfsC = new HdfsClient(); 
-			hdfsC.HdfsWrite(FileReaderWriter.FMT_TXT, fname);
-			long t2 = System.currentTimeMillis();
-			System.out.println("HDFS : temps de fragmentation = "+(t2-t1)+"ms");
+			// long t1 = System.currentTimeMillis();
+			// Thread.sleep(100); 
+			// HdfsClient hdfsC = new HdfsClient(); 
+			// hdfsC.HdfsWrite(FileReaderWriter.FMT_TXT, fname);
+			// long t2 = System.currentTimeMillis();
+			// System.out.println("HDFS : temps de fragmentation = "+(t2-t1)+"ms");
 			
 			// ----- LANCE LE REDUCE -----
 			FileKVReaderWriter writerRes = new FileKVReaderWriter(pathData + nomExt[0] + "-res." + nomExt[1]);	
@@ -90,6 +107,7 @@ public class JobLauncher {
 			NetworkReaderWriter connexionRecu = networkRW.accept();
 			connexionRecu.openServer();
 			mr.reduce(connexionRecu, writerRes);
+			System.out.println("Reduce fini");
 			connexionRecu.closeServer();
 			
 			writerRes.close();
