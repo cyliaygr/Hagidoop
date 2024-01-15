@@ -1,5 +1,7 @@
 package daemon;
 
+import java.util.List;
+import java.util.ArrayList;
 import interfaces.*;
 import config.*;
 import java.io.InputStream;
@@ -14,7 +16,10 @@ import java.rmi.RemoteException;
 public class JobLauncher {
 
 	static Config config = new Config();
-	public static Worker listeWorker[];// liste des références aux workers dans le regsitre RMI
+	//public static Worker listeWorker[];// liste des références aux workers dans le regsitre RMI
+	public static List<Worker> listeWorker = new ArrayList<>();
+
+
 
 
 	static private int nbWorker;
@@ -26,14 +31,20 @@ public class JobLauncher {
 		nbWorker = config.getNbWorker();
 
 		// récupérer les références des objets Daemon distants
-		listeWorker = new WorkerImpl[nbWorker];
+		//listeWorker = new WorkerImpl[nbWorker];
 
 		// ----- LANCE LES RUNMAPS -----
 		// Connexion RMI avec les Workers déjà créé par le script
 		try {
+			//for (int i = 0 ; i < nbWorker ; i++) {
+			//	System.out.println(config.getURL(i)); //(i+1) car la machine 0 est celle du client
+			//	listeWorker[i]= (Worker) Naming.lookup(config.getURL(i));
+			//}
+
 			for (int i = 0 ; i < nbWorker ; i++) {
-				System.out.println(config.getURL(i+1)); //(i+1) car la machine 0 est celle du client
-				listeWorker[i]=(Worker) Naming.lookup(config.getURL(i+1));
+				System.out.println(config.getURL(i));
+				Worker worker = (Worker) Naming.lookup(config.getURL(i));
+				listeWorker.add(worker);
 			}
 			
 			
@@ -45,13 +56,20 @@ public class JobLauncher {
 				networkRW.openServer();
 			}).start();
 			
-			for (int i = 0; i < nbWorker ; i ++){
+			//for (int i = 0; i < nbWorker ; i ++){
 				//Reader sur le fragment i
-				FileReaderWriter reader = new FileTxtReaderWriter(pathData + nomExt[0] + "-" + i + "." + nomExt[1]);	
+				//FileReaderWriter reader = new FileTxtReaderWriter(pathData + nomExt[0] + "-" + i + "." + nomExt[1]);	
+				//System.out.println("lancement runmap");
+				
+				//listeWorker[i].runMap(mr, reader, networkRW);
+				
+			//}
+
+			for (Worker worker : listeWorker) {
+				FileReaderWriter reader = new FileTxtReaderWriter(pathData + nomExt[0] + "-" + worker.getNbWorker() + "." + nomExt[1]);	
 				System.out.println("lancement runmap");
-				
-				listeWorker[i].runMap(mr, reader, networkRW);
-				
+				// Appeler runMap sur chaque Worker
+				worker.runMap(mr, reader, networkRW);
 			}
 			
 			// ----- ENVOIE LES FRAGMENTS -----

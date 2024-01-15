@@ -60,7 +60,7 @@ public class Config {
             // URL
             // si le fichier de configuration est correct
             for (int i=0 ; i < numMaxWorker ; i++) {
-                urls[i] = "//" + noms[i] + ":" + portsRMI[i] + "/Worker";
+                urls[i] = "//" + noms[i] + ":" + portsRMI[i] + "/Worker-" + numWorker;
                 // System.out.println(urls[i]);
             }
  
