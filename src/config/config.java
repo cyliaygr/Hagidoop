@@ -5,10 +5,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+//  Cette classe permet de lire le fichier config et évite aux autres classes et leurs
+// méthodes d'avoir beaucoup de paramètres d'entrés, seul le numéro de la machine suffit
 public class Config {
     private String fileConfig = Project.PATH + "/src/config/config_hagidoop.cfg";
     
-    private int numMaxWorker = 15;
+    private int numMaxWorker = 15;  //Peut être augenter
     private int numWorker;
     private String[] noms        = new String[numMaxWorker];
     private String[] portsSocket = new String[numMaxWorker];
@@ -71,40 +73,48 @@ public class Config {
 		}
     }
 
+    // Vérifie que la machines existe avant de récupérer ces informations
     private void iValide(int i){
         if(i > (numWorker+1)){
             System.err.println("Machine n°" + (i) + " invalide, il y a " + numWorker + "machines.");
         }
     }
 
+    //Récupère le nom//l'adresse de la machine ("localhost", carapuce, 174.168.31.128)
     public String getNom (int i){
         iValide(i);
         return noms[i];
     }
 
+    //Récupère le port pour la connexion socket du HDFS
     public int getPortSocket(int i){
         iValide(i);
         return Integer.parseInt(portsSocket[i]);
     }
 
+    //Récupère le port RMI pour les connexion des workers
     public int getPortRMI(int i){
         iValide(i);
         return Integer.parseInt(portsRMI[i]);
     }
 
+    //Récupère l'URL pour les connexion des workers (//localhost:4000/Worker-2)
     public String getURL (int i){
         iValide(i);
         return urls[i];
     }
 
+    //Récupère le nombre maximum de worker que l'on peut utiliser
     public int getNbMaxWorker (){
         return numMaxWorker;
     }
 
+    //Récupère le nombre de worker que l'on veut utiliser
     public int getNbWorker (){
         return numWorker;
     }
 
+    //Récupère le nom du fichier à traiter
     public String getFname(){
         return fname;
     }

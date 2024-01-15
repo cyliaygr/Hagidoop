@@ -35,36 +35,49 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
         this.fname     = fname; //Nom du fragment
         this.workerNum = num;   //Numéro du worker
 
-        //----- Lecture du fragment -----
+        // ------------------------------------------------
+        //         HDFS - Lecture du fragment à traiter           
+        // ------------------------------------------------     
         HdfsServer hdfsS = new HdfsServer(workerNum);
-        System.out.println("HDFS créé"); 
+        System.out.println("\nHDFS"); 
+        System.out.println("| lecture du fragment de "+fname+"\n"); 
         hdfsS.HdfsRead(workerNum, fname.replace(".txt", "-"+workerNum+".txt"));
     }
 
+
     public void runMap(Map m, FileReaderWriter reader, NetworkReaderWriter writer) throws RemoteException{
         try {
-            System.out.println("lancement du runMap");
+            System.out.println("\nLancement du runMap");
             
-            // ----- INIT -----
+        // ------------------------------------------------
+        //               INIT           
+        // ------------------------------------------------
             // Initialise le reader sur le fragment
             reader.open("R");
+            System.out.println("| reader ouvert ");
             // Initialise le writer sur le NetworkRW connecté au reduce du startJob
-            Thread.sleep(1000);//TEST
+            Thread.sleep(1000);//A supprimer
             writer.openClient();
+            System.out.println("| writer ouvert");
             
-            
+            // TEST - Ce writer permet d'écrire les résultats dans des fragments locaux
             //FileKVReaderWriter filewriter = new FileKVReaderWriter((Project.PATH+"/data/"+config.getFname().replace(".txt", "-res"+workerNum+".kv")));
             //filewriter.open("W");
             
-            
-            // ----- RUNMAP -----
+        // ---------------------------------------
+        //               RUNMAP           
+        // ---------------------------------------
+            System.out.println("| map lancé");
             m.map(reader, writer);
-            System.out.println("runMap fini");
+            System.out.println("| map() fini");
             
-            // ----- FERMETURE -----
-            //filewriter.close();
+        // ---------------------------------------
+        //               FERMETURE           
+        // ---------------------------------------
+            //filewriter.close(); //TEST
             writer.closeClient();
             reader.close(); 
+            System.out.println("| reader et writer fermé");
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -74,6 +87,7 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
     public void run()  {
     }
     
+
     //Parametres d'appel : Nom de la machine où s'execute le worker
     //                     Numéro du port RMI du worker
     //                     Numéro du worker
@@ -94,13 +108,10 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
                 
                 WorkerImpl serveurWork = new WorkerImpl(workerName,workerNum);
                 
-                //TODO              workerName ?                                     workerPort
                 String url = "//" + workerName + ":" + workerPort + "/Worker-" + workerNum ;
                 
                 Naming.rebind(url, serveurWork);
-                System.out.println("Serveur Worker" + serveurWork + " publié sur le RMI :"+ url);
-                
-                
+                System.out.println("Serveur Worker" + serveurWork + " publié sur le RMI :"+ url);  
             } catch (Exception e) {
                 System.out.println("RMI déjà publié");
                 e.printStackTrace();

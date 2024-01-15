@@ -29,9 +29,10 @@ public class HdfsServer {
         try {
             // Socket de lecture
             ServerSocket ssock = new ServerSocket(config.getPortSocket(id));
-            System.out.println("Socket en attente");
+            System.out.println("HDFS : ServerSocket créé en attente de connection");
             Socket s = ssock.accept();
             ObjectInputStream ois = new ObjectInputStream(s.getInputStream());
+            System.out.println("HDFS : ServerSocket connecté");
             
 
             // Lecture du fragment en entier
@@ -62,26 +63,13 @@ public class HdfsServer {
     // java HdfsServer <read|write> <txt|kv> <file> <id>
     // appel des méthodes précédentes depuis la ligne de commande
     public static void main(String[] args) {
-        //int type = Integer.parseInt(args[1]); //FMT_TXT ou FMT_KV 
-        int id = Integer.parseInt(args[3]);
-        String fname =  args[2];
+        //int type       = Integer.parseInt(args[1]); //FMT_TXT ou FMT_KV 
+        int id         = Integer.parseInt(args[3]);
+        String fname   =  args[2];
         String newName = fname.replace(".txt", "-"+id+".txt");
-
-
-        //System.out.println("Je suis HdfsServer_" + id + " et j'écris le fragment " + newName);
         
         // Lecture du frament de fichier envoyé par le HdfsClient
         HdfsRead(id, newName);
-
-        // // Traitement 
-        // JobLauncher jl = new JobLauncher();
-        // MyMapReduce mmr = new MyMapReduce();
-        // jl.startJob(new MyMapReduce(), type, newName);
-
-
-        // Envoie des résultat au HdfsClient
-
-
 
     }
 

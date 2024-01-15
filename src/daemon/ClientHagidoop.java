@@ -28,6 +28,9 @@ public class ClientHagidoop {
 
 	
 
+	// Classe qui traite les paramètre d'entrée et qui lance le statjob (depuis le main de mapReduce)
+	// /!\ Peu utile depuis l'ajout de la classe config
+	//
 	// Liste des arguments : 0) nom du fichier and data à traiter (filesample.txt)
 	//                       1) type du fichier (txt ou KV)
 	//						 2) nbr de worker	
@@ -68,15 +71,11 @@ public class ClientHagidoop {
 			nbWorker = Integer.parseInt(args[2]);
 
 			
-
-			JobLauncher job = new JobLauncher();
-			MyMapReduce mr = new MyMapReduce();
-
 		// ----------------------------------------------------
 		//			LANCEMENT DES WORKERS
 		// ----------------------------------------------------
-
-			
+			JobLauncher job = new JobLauncher();
+			MyMapReduce mr = new MyMapReduce();
 
 			// Lancement des tâches
 			System.out.println("Lancement de startJob()");
