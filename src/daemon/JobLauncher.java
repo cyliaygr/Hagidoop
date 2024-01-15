@@ -100,15 +100,43 @@ public class JobLauncher {
 			// System.out.println("HDFS : temps de fragmentation = "+(t2-t1)+"ms");
 			
 			// ----- LANCE LE REDUCE -----
-			FileKVReaderWriter writerRes = new FileKVReaderWriter(pathData + nomExt[0] + "-res." + nomExt[1]);	
+			FileKVReaderWriter writerRes = new FileKVReaderWriter(pathData + nomExt[0] + "-res.kv");	
 			writerRes.open("W");
 			networkRW.openServer();
 			
-			NetworkReaderWriter connexionRecu = networkRW.accept();
-			connexionRecu.openServer();
-			mr.reduce(connexionRecu, writerRes);
-			System.out.println("Reduce fini");
-			connexionRecu.closeServer();
+			List<Thread> reduceThreads = new ArrayList<>(); // Liste pour stocker les threads de réduction
+			for(int y=0; y<nbWorker; y++){
+				NetworkReaderWriter connexionRecu = networkRW.accept();
+
+				// Création et démarrage d'un thread pour chaque méthode reduce
+				final int yFinal = y; // Copie finale de la variable y
+				Thread reduceThread = new Thread(() -> {
+					mr.reduce(connexionRecu, writerRes);
+					System.out.println("Reduce fini pour le worker " + yFinal);
+					connexionRecu.closeServer();
+				});
+
+				reduceThreads.add(reduceThread);
+    			reduceThread.start();
+
+				
+			}
+			
+			// Attendre la fin de tous les threads de réduction
+			for (Thread reduceT : reduceThreads) {
+				try {
+					reduceT.join();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			// try {
+			// 	Thread.sleep(1000);
+			// } catch (Exception e) {
+			// 	e.printStackTrace();
+			// }
+			
 			
 			writerRes.close();
 			networkRW.closeServer();

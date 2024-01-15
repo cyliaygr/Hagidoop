@@ -53,16 +53,16 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
             writer.openClient();
             
             
-            FileKVReaderWriter filewriter = new FileKVReaderWriter((Project.PATH+"/data/"+config.getFname().replace(".txt", "-res"+workerNum+".kv")));
-            filewriter.open("W");
+            //FileKVReaderWriter filewriter = new FileKVReaderWriter((Project.PATH+"/data/"+config.getFname().replace(".txt", "-res"+workerNum+".kv")));
+            //filewriter.open("W");
             
             
             // ----- RUNMAP -----
-            m.map(reader, filewriter);
+            m.map(reader, writer);
             System.out.println("runMap fini");
             
             // ----- FERMETURE -----
-            filewriter.close();
+            //filewriter.close();
             writer.closeClient();
             reader.close(); 
             
@@ -72,13 +72,6 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
     }
     
     public void run()  {
-        try {
-            
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
     }
     
     //Parametres d'appel : Nom de la machine où s'execute le worker

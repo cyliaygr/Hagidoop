@@ -78,7 +78,6 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
 	public void openClient() { 
         try {
             serverSocketReady.take(); // Attend que le serveur soit prêt
-            Thread.sleep(3000);//TEST
             // Map peut ouvrir une connexion pour lire des KV depuis le fragment
             System.out.println(String.valueOf(this.port));
             this.csock = new Socket("localhost", this.port); 
