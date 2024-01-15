@@ -40,6 +40,11 @@ public class JobLauncher {
 			//Writer sur le réseau vers reduce
 			NetworkReaderWriterImpl networkRW = new NetworkReaderWriterImpl(config.getNom(0),FileReaderWriter.FMT_KV, config.getPortSocket(0));	  
 			
+			// Ouvrez le ServerSocket dans un thread séparé
+			new Thread(() -> {
+				networkRW.openServer();
+			}).start();
+			
 			for (int i = 0; i < nbWorker ; i ++){
 				//Reader sur le fragment i
 				FileReaderWriter reader = new FileTxtReaderWriter(pathData + nomExt[0] + "-" + i + "." + nomExt[1]);	
