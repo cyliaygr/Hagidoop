@@ -1,8 +1,8 @@
 echo "Debut de compilation "
-javac application/*.java
-javac config/*.java
-javac daemon/*.java
-javac hdfs/*.java
 javac interfaces/*.java
+javac config/*.java
+javac hdfs/*.java
+javac application/*.java
+javac daemon/*.java
 echo "Compilation fini "
 

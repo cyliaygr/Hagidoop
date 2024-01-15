@@ -27,13 +27,17 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
 
     static private String fname;
     static private String workerName;
-    static  private int workerPort;
+    static private int workerPort;
     static private int workerNum;
     
 
     public WorkerImpl(String fname, int num) throws RemoteException{
         this.fname     = fname; //Nom du fragment
         this.workerNum = num;   //Numéro du worker
+    }
+
+    public int getNbWorker(){
+        return this.workerNum;
     }
 
 
@@ -100,6 +104,7 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
                 
             } catch (Exception e) {
                 System.out.println("RMI déjà publié");
+                e.printStackTrace();
             }
            
         } catch (Exception e) {
