@@ -104,7 +104,7 @@ public class WorkerImpl extends UnicastRemoteObject implements Worker, Runnable{
             
             //On publie le worker sur le RMI, qu'on récupérera au niveau du client pour pouvoir lancer les runMap
             try {
-                Registry registre = LocateRegistry.createRegistry(workerNum);
+                Registry registre = LocateRegistry.createRegistry(workerPort);
                 
                 WorkerImpl serveurWork = new WorkerImpl(workerName,workerNum);
                 
