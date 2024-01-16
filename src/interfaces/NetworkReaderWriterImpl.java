@@ -47,28 +47,33 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
 
     private int index = 0;
 
+    // Constructeur qui utillise une adresse, un format et un port (pas utilisé en fin de compte)
     public NetworkReaderWriterImpl(String a, int f, int p) {
         this.adresse = a;
         this.format = f;
         this.port = p;
     }
 
+    // Constructeur qui utilise un port
     public NetworkReaderWriterImpl(int p) {
         this.port = p;
     }
 
+    // Constructeur sans paramètres qui crée une liste de Sockets
     public NetworkReaderWriterImpl() {
         csockList = new ArrayList<Socket>();
         ObjectList = new ArrayList<ObjectInputStream>();
     }
     
-
+    // Fonction qui permet d'initialiser un serveur Socket
     public void openServer() {
         try {
-            // Reduce peut ouvrir une connexion pour récolter les resultats (lire des KV)
+            // Le Reduce peut ouvrir une connexion pour récolter les resultats (lire des KV) => openServer()
             this.ssock = new ServerSocket(this.port); 
             System.out.println("Server Socket crée au port" + this.port);
-            serverSocketReady.offer(true); // Signal que le serveur est prêt
+
+            // Utilisation du principe de blocking queues pour assurer la synchronisation de l'ouverture / fermeture des Sockets
+            serverSocketReady.offer(true); // Signale au client que le serveur est prêt
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -77,11 +82,11 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
 
 	public void openClient() { 
         try {
-            serverSocketReady.take(); // Attend que le serveur soit prêt
-            // Map peut ouvrir une connexion pour lire des KV depuis le fragment
+            serverSocketReady.take(); // Attend que le serveur soit prêt (attente du signal du openServer)
+            // Le Map peut ouvrir une connexion pour lire des KV depuis le fragment
             System.out.println(String.valueOf(this.port));
             this.csock = new Socket("localhost", this.port); 
-            System.out.println("SOCKET CREE : "+this.port);
+            System.out.println("Socket Client crée au port : "+this.port);
             reader = new BufferedReader(new InputStreamReader(csock.getInputStream()));
         } catch (Exception e) {
             e.printStackTrace();
@@ -91,6 +96,7 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
 
 	public NetworkReaderWriter accept() {
         try {
+            // accepte une connexion sur le socket Serveur 
             Socket asock = ssock.accept();
             NetworkReaderWriterImpl newConnection = new NetworkReaderWriterImpl(port);
             newConnection.setSocket(asock);
@@ -105,6 +111,7 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
         this.csock = socket;
     }
 
+    // Méthode pour fermer le socket Server
 	public void closeServer() { 
         try {
             if (ssock != null) {
@@ -121,6 +128,7 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
         }
     }
 
+    // Méthode pour fermer le socket Client
 	public void closeClient() {
         try {
             if (csock != null) {
@@ -138,21 +146,38 @@ public class NetworkReaderWriterImpl implements NetworkReaderWriter {
 
     }
 
-
+    // Méthode qui initialise les entrées de la connexion réseau (lecture Input)
     public KV read() {	
 		try {
             ObjectInputStream objectInputStream = new ObjectInputStream(csock.getInputStream());
-            //if (readO = clé) then return null (ou le bon truc)
-            return (KV) objectInputStream.readObject();
-        } catch (IOException | ClassNotFoundException e) {
+            return (KV)objectInputStream.readObject();
+
+            // // Si le KV lu est null, c'est un end of file donc on écrit null pour indiquer la fin de fichier
+            // if (kvRead == new KV("EndOfFile","0")) { 
+            //     return null;
+            // } else {
+            //     return kvRead;    
+            // }
+
+        } 
+        // Si c'est le fin du fichier, on écrit null
+        catch (EOFException e) {
+            return null;
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
 	}
 
+    // Méthode qui initialise les sorties de la connexion réseau (écriture Output)
     public void write(KV record) {
         try {
-            // if (record = EOF ou null) then envoie clé
+            // Si le KV lu est null, c'est un end of file donc on envoit un KV spéciale qui indique la fin de fichier
+            if (record == null) { 
+                record = new KV("EndOfFile","0");    
+            }
+
+            //Envoie du KV sur le network
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(csock.getOutputStream());
             objectOutputStream.writeObject(record);
             objectOutputStream.flush();
